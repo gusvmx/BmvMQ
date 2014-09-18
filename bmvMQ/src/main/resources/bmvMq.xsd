@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="bmvMq">
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="url" type="xs:string" minOccurs="1" maxOccurs="1"/>
+				<xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>
+				<xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
+				<xs:element name="acknowledgeMode" type="acknowledgeModeType" minOccurs="1" maxOccurs="1" default="AUTO_ACKNOWLEDGE" />
+				<xs:element name="destinationResolver" type="destinationResolverType" minOccurs="0" maxOccurs="1" default="DYNAMIC" />
+				<xs:element name="reconnectionInterval" type="xs:integer" minOccurs="1" maxOccurs="1" default="5000"/>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:simpleType name="acknowledgeModeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="AUTO_ACKNOWLEDGE" />
+			<xs:enumeration value="CLIENT_ACKNOWLEDGE" />
+			<xs:enumeration value="DUPS_OK_ACKNOWLEDGE" />
+			<xs:enumeration value="SESSION_TRANSACTED"/>
+			<xs:enumeration value="SESSION_XA_TRANSACTED"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="destinationResolverType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="DYNAMIC" />
+			<xs:enumeration value="JNDI" />
+			<xs:enumeration value="HYBRID" />
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
