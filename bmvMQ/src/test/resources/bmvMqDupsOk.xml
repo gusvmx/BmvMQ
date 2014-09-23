@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bmvMq xsi:noNamespaceSchemaLocation="bmvMq.xsd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<url>vm://localhost?broker.persistent=false</url>
+	<username>admin</username>
+	<password>admin</password>
+	<acknowledgeMode>DUPS_OK_ACKNOWLEDGE</acknowledgeMode>
+	<destinationResolver>DYNAMIC</destinationResolver>
+	<reconnectionInterval>5000</reconnectionInterval>
+	<maxConnections>8</maxConnections>
+</bmvMq>
