@@ -60,9 +60,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</connection>
-		<url>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</url>
-		<developerConnection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</developerConnection>
+		<connection>scm:git:git@10.100.144.58:bmv-mq/bmv-mq.git</connection>
+		<url>scm:git:git@10.100.144.58:bmv-mq/bmv-mq.git</url>
+		<developerConnection>scm:git:git@10.100.144.58:bmv-mq/bmv-mq.git</developerConnection>
 	  <tag>HEAD</tag>
   </scm>
 
