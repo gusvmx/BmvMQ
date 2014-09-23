@@ -3,7 +3,7 @@
 
 	<groupId>com.bursatec.jms</groupId>
 	<artifactId>bmvMQ</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>bmvMQ</name>
@@ -63,7 +63,7 @@
 		<connection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</connection>
 		<url>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</url>
 		<developerConnection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</developerConnection>
-	  <tag>bmvMQ-1.0.1</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 	<distributionManagement>
