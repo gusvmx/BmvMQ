@@ -9,7 +9,8 @@
 				<xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
 				<xs:element name="acknowledgeMode" type="acknowledgeModeType" minOccurs="1" maxOccurs="1" default="AUTO_ACKNOWLEDGE" />
 				<xs:element name="destinationResolver" type="destinationResolverType" minOccurs="0" maxOccurs="1" default="DYNAMIC" />
-				<xs:element name="reconnectionInterval" type="xs:integer" minOccurs="1" maxOccurs="1" default="5000"/>
+				<xs:element name="reconnectionInterval" type="xs:int" minOccurs="1" maxOccurs="1" default="5000"/>
+				<xs:element name="maxConnections" type="xs:int" minOccurs="1" maxOccurs="1" default="8"/>
 			</xs:all>
 		</xs:complexType>
 	</xs:element>
