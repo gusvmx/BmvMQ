@@ -8,11 +8,74 @@
 	<packaging>jar</packaging>
 
 	<name>bmvMQ</name>
-	<url>http://maven.apache.org</url>
+	<description>API de conexión a JMS de la Bolsa Mexicana de Valores</description>
+	<organization>
+		<name>Bursatec</name>
+		<url>http://bursatec.com.mx</url>
+	</organization>
+	<inceptionYear>2014</inceptionYear>
+
+	<repositories>
+		<repository>
+			<id>SCN M2 Repository Server LIBS</id>
+			<name>SCN M2 Repository Server-snapshots</name>
+			<url>http://10.100.144.58:8081/artifactory/libs-snapshots-local</url>
+		</repository>
+		<repository>
+			<id>SCN M2 Repository Server External</id>
+			<name>SCN External Plugins</name>
+			<url>http://10.100.144.58:8081/artifactory/ext-releases-local</url>
+		</repository>
+		<repository>
+			<id>SCN M2 Repository Server Releases</id>
+			<name>SCN Releases Plugins</name>
+			<url>http://10.100.144.58:8081/artifactory/libs-releases-local</url>
+		</repository>
+	</repositories>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+	<developers>
+		<developer>
+			<id>gvargas</id>
+			<name>Gustavo Vargas Tena</name>
+			<email>gvargas@bursatec.com.mx</email>
+			<url>http://bursatec.com.mx</url>
+			<organization>Bursatec</organization>
+			<organizationUrl>http://bursatec.com.mx</organizationUrl>
+			<timezone>gmt-6</timezone>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>BURSATEC</name>
+			<url>http://bursatec.com.mx</url>
+			<comments>BURSATEC Todos los derechos reservados</comments>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</connection>
+		<url>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</url>
+		<developerConnection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</developerConnection>
+	</scm>
+
+	<distributionManagement>
+		<repository>
+			<id>libs-releases-local</id>
+			<url>http://10.100.144.58:8081/artifactory/libs-releases-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>libs-snapshots-local</id>
+			<url>http://10.100.144.58:8081/artifactory/libs-snapshots-local</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -60,6 +123,67 @@
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.4</version>
+				<configuration>
+					<locales>en,es</locales>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.2.201409121644</version>
+				<configuration>
+					<destfile>${basedir}/target/coverage-reports/jacoco-unit.exec</destfile>
+					<datafile>${basedir}/target/coverage-reports/jacoco-unit.exec</datafile>
+				</configuration>
+				<executions>
+					<execution>
+						<id>jacoco-initialize</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-site</id>
+						<phase>package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.13</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.bursatec.process</groupId>
+						<artifactId>quality-standard</artifactId>
+						<version>0.0.1</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<configLocation>bursatec-checkstyle.xml</configLocation>
+					<excludes>**/bind/**/*</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10</version>
+				<configuration>
+					<aggregate>true</aggregate>
 				</configuration>
 			</plugin>
 			<plugin>
