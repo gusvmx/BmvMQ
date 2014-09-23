@@ -8,6 +8,7 @@
  */
 package com.bursatec.bmvmq.core;
 
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 
 import javax.jms.ConnectionFactory;
@@ -23,9 +24,12 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.listener.adapter.MessageListenerAdapter;
+import org.springframework.transaction.jta.JtaTransactionManager;
 
 import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.config.ApplicationConfiguration;
+import com.bursatec.bmvmq.config.BmvMqConfigurationReader;
+import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.listener.MessageListener;
 
 /**
@@ -33,7 +37,9 @@ import com.bursatec.bmvmq.listener.MessageListener;
  *
  */
 public class BmvMqTemplate implements MqTemplate {
-	
+
+	/***/
+	public static final String DEFAULT_CONFIG_FILE_LOCATION = "classpath:bmvMq.xml";
 	/**
 	 * 
 	 */
@@ -54,13 +60,36 @@ public class BmvMqTemplate implements MqTemplate {
 
 	/**
 	 * Constructor por default.
+	 * 
+	 * @throws FileNotFoundException
+	 *             En caso de no encontrar en el classpath el archivo de
+	 *             configuración bmvMq.xml
 	 */
-	public BmvMqTemplate() {
+	public BmvMqTemplate() throws FileNotFoundException {
+		this(DEFAULT_CONFIG_FILE_LOCATION);
+	}
+	
+	/**
+	 * @param configFileLocation
+	 *            La ubicación del archivo de configuración.
+	 * 
+	 *            La ubicación del archivo puede llevar los siguientes prefijos:
+	 *            classpath:, file:, jar:, zip:
+	 *            
+	 *            En caso de no contar con un prefijo, el archivo se buscará en el FS.
+	 * @throws FileNotFoundException
+	 *             En caso de no encontrar el archivo de configuración en la
+	 *             ubicación indicada.
+	 */
+	public BmvMqTemplate(final String configFileLocation) throws FileNotFoundException {
+		BmvMq config = BmvMqConfigurationReader.readConfiguration(configFileLocation);
+		ApplicationConfiguration.setConfiguration(config);
 		ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
 		this.connectionFactory = context.getBean(ConnectionFactory.class);
 		this.jmsQueueTemplate = (JmsTemplate) context.getBean("jmsQueueTemplate");
 		this.jmsTopicTemplate = (JmsTemplate) context.getBean("jmsTopicTemplate");
 		context.close();
+		
 	}
 
 	@Override
@@ -131,32 +160,27 @@ public class BmvMqTemplate implements MqTemplate {
 	@Override
 	public final void receiveExclusively(final String destinationName,
 			final MessageListener messageListener) {
+		DefaultMessageListenerContainer container = createContainer(destinationName, messageListener);
+		
 		Queue destination = new ActiveMQQueue(destinationName + "?consumer.exclusive=true");
-		MessageListenerAdapter adapter = new MessageListenerAdapter(messageListener);
-		adapter.setDefaultListenerMethod("onMessage");
-
-		DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
-		container.setMessageListener(adapter);
-		container.setConnectionFactory(connectionFactory);
 		container.setDestination(destination);
+		
 		container.initialize();
 		container.start();
 		logger.info("Connection established to the queue {} as exclusive consumer. "
 				+ "Messages will be delivered to the instance of the class {} with name {}", 
 				destination, messageListener.getClass().getName(), messageListener.toString());
 	}
+	
+	
 
 	@Override
 	public final void receive(final String destination,
 			final MessageListener messageListener) {
 		DefaultMessageListenerContainer container = createContainer(destination, messageListener);
-//		container.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
-		container.setSessionTransacted(true);
-//		container.setTransactionManager(new JmsTransactionManager(connectionFactory));
-//		container.setTransactionManager(new JtaTransactionManager());
 		container.initialize();
 		container.start();
-		logger.info("Connection established to the queue {}"
+		logger.info("Connection established to the queue {}. "
 				+ "Messages will be delivered to the instance of the class {} with name {}", 
 				destination, messageListener.getClass().getName(), messageListener.toString());
 	}
@@ -168,7 +192,7 @@ public class BmvMqTemplate implements MqTemplate {
 		container.setPubSubDomain(true);
 		container.initialize();
 		container.start();
-		logger.info("Subscribed successfully to the topic {}"
+		logger.info("Subscribed successfully to the topic {}. "
 				+ "Messages will be delivered to the instance of the class {} with name {}", 
 				destination, messageListener.getClass().getName(), messageListener.toString());
 	}
@@ -190,7 +214,40 @@ public class BmvMqTemplate implements MqTemplate {
 		container.setMessageListener(adapter);
 		container.setConnectionFactory(connectionFactory);
 		container.setDestinationName(destination);
+		container.setRecoveryInterval(ApplicationConfiguration.getConfiguration().getReconnectionInterval());
+		configureAcknowledgeMode(container);
+		logger.info("The message listener for the destination {} has been configured with {} ack mode", 
+				destination, ApplicationConfiguration.getConfiguration().getAcknowledgeMode());
 		return container;
+	}
+	
+	/**
+	 * Configura la modalidad de acuse de recibo.
+	 * @param container El contenedor que será configurado.
+	 */
+	private void configureAcknowledgeMode(final DefaultMessageListenerContainer container) {
+		BmvMq config = ApplicationConfiguration.getConfiguration();
+		switch (config.getAcknowledgeMode()) {
+		case CLIENT_ACKNOWLEDGE:
+			container.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+			break;
+		case DUPS_OK_ACKNOWLEDGE:
+			container.setSessionAcknowledgeMode(Session.DUPS_OK_ACKNOWLEDGE);
+			break;
+		case SESSION_TRANSACTED:
+			container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+			container.setSessionTransacted(true);
+			break;
+		case SESSION_XA_TRANSACTED:
+			container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+			container.setSessionTransacted(true);
+			container.setTransactionManager(new JtaTransactionManager());
+			break;
+		case AUTO_ACKNOWLEDGE:
+		default:
+			container.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
+			break;
+		}
 	}
 
 	@Override
@@ -205,6 +262,9 @@ public class BmvMqTemplate implements MqTemplate {
 		// TODO Ver si es necesario colocar un ExceptionListener
 		container.initialize();
 		container.start();
+		logger.info("Durable subscription established successfully to the topic {}. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destination, messageListener.getClass().getName(), messageListener.toString());
 	}
 
 }
