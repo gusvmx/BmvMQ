@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.bursatec.jms</groupId>
 	<artifactId>bmvMQ</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>bmvMQ</name>
@@ -64,7 +63,8 @@
 		<connection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</connection>
 		<url>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</url>
 		<developerConnection>scm:git:git@10.100.144.58:ifajardo/bmv-mq.git</developerConnection>
-	</scm>
+	  <tag>bmvMQ-1.0.0</tag>
+  </scm>
 
 	<distributionManagement>
 		<repository>
@@ -232,7 +232,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
