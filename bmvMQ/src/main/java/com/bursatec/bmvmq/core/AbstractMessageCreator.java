@@ -12,6 +12,8 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.MessageCreator;
 
 /**
@@ -20,6 +22,8 @@ import org.springframework.jms.core.MessageCreator;
  */
 public abstract class AbstractMessageCreator implements MessageCreator {
 
+	/***/
+	private final Logger logger = LoggerFactory.getLogger(AbstractMessageCreator.class);
 	/**
 	 * Las propiedades del mensaje.
 	 */
@@ -39,9 +43,12 @@ public abstract class AbstractMessageCreator implements MessageCreator {
 	@Override
 	public final Message createMessage(final Session session) throws JMSException {
 		Message message = createConcreteMessage(session);
+		
 		if (messageGroup != null) {
 			message.setStringProperty("JMSXGroupID", this.messageGroup);
+			logger.debug("The groupId {} has been set to the message", this.messageGroup);
 		}
+		logger.debug("Message created and ready to be sent");
 		return message;
 	}
 	
