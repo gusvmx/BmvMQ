@@ -122,15 +122,13 @@ public interface MqTemplate {
 	 * @param destination
 	 *            El nombre del tópico al que se realizará la suscripción
 	 *            durable.
-	 * @param clientId
-	 *            El identificador único del consumidor/suscriptor.
 	 * @param durableSubscriptionName
 	 *            El nombre de la suscripción durable.
 	 * @param messageListener
 	 *            El callback donde se entregarán los mensajes recibidos en la
 	 *            suscripción.
 	 */
-	void durableSubscription(String destination, String clientId, String durableSubscriptionName, 
+	void durableSubscription(String destination, String durableSubscriptionName, 
 			MessageListener messageListener);
 
 }

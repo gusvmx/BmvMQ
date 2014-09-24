@@ -247,12 +247,11 @@ public class BmvMqTemplate implements MqTemplate {
 
 	@Override
 	public final void durableSubscription(final String destination,
-			final String clientId, final String durableSubscriptionName,
+			final String durableSubscriptionName,
 			final MessageListener messageListener) {
 		DefaultMessageListenerContainer container = createContainer(destination, messageListener);
 		container.setPubSubDomain(true);
 		container.setSubscriptionDurable(true);
-		container.setClientId(clientId);
 		container.setDurableSubscriptionName(durableSubscriptionName);
 		container.initialize();
 		container.start();

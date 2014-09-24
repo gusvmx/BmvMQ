@@ -37,8 +37,6 @@ public class BmvMqDurableSubscriptionTest {
 	/***/
 	private static MqTemplate template;
 	/***/
-	private static final String CLIENT_ID = "bmvMqClientId";
-	/***/
 	private static final String SUBSCRIPTION_NAME = "bmvMqSubscriptionName";
 	/***/
 	private static final String DESTINATION = BmvMqDurableSubscriptionTest.class.getName();
@@ -58,7 +56,7 @@ public class BmvMqDurableSubscriptionTest {
 		final int numberOfMessagesToPublish = 3;
 		CountDownLatch latch = new CountDownLatch(numberOfMessagesToPublish);
 		CountdownMessageListener messageListener = new CountdownMessageListener(latch);
-		template.durableSubscription(DESTINATION, CLIENT_ID, SUBSCRIPTION_NAME, messageListener);
+		template.durableSubscription(DESTINATION, SUBSCRIPTION_NAME, messageListener);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);
 		
