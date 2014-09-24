@@ -40,7 +40,6 @@ public class ApplicationConfiguration {
 	ConnectionFactory jmsConnectionFactory() {
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
 		connectionFactory.setBrokerURL(configuration.getUrl());
-		connectionFactory.setClientID(configuration.getClientId());
 		connectionFactory.setUserName(configuration.getUsername());
 		connectionFactory.setPassword(configuration.getPassword());
 		PooledConnectionFactory pooledConnectionFactory = new PooledConnectionFactory(connectionFactory);
