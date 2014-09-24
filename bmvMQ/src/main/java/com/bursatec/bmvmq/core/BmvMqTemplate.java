@@ -12,10 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.Serializable;
 
 import javax.jms.ConnectionFactory;
-import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -127,6 +125,7 @@ public class BmvMqTemplate implements MqTemplate {
 		jmsQueueTemplate.send(destination, messageCreator);
 		logger.debug("Serializable object message sent to the queue {} to the message group {}", 
 				destination, messageGroup);
+		logger.warn("Message grouping is solely available when using SonicMQ8.x+ or ActiveMQ");
 	}
 
 	@Override
@@ -141,6 +140,7 @@ public class BmvMqTemplate implements MqTemplate {
 		MessageCreator messageCreator = new StringMessageCreator(message, messageGroup);
 		jmsQueueTemplate.send(destination, messageCreator);
 		logger.debug("String message sent to the queue {} to the message group {}", destination, messageGroup);
+		logger.warn("Message grouping is solely available when using SonicMQ8.x+ or ActiveMQ");
 	}
 
 	@Override
@@ -155,21 +155,16 @@ public class BmvMqTemplate implements MqTemplate {
 		MessageCreator messageCreator = new ByteArrayMessageCreator(message, messageGroup);
 		jmsQueueTemplate.send(destination, messageCreator);
 		logger.debug("Byte array message sent to the queue {} to the message group {}", destination, messageGroup);
+		logger.warn("Message grouping is solely available when using SonicMQ8.x+ or ActiveMQ");
 	}
 	
 	@Override
 	public final void receiveExclusively(final String destinationName,
 			final MessageListener messageListener) {
-		DefaultMessageListenerContainer container = createContainer(destinationName, messageListener);
+		logger.warn("This bmvMQ version doesn't have implemented the exclusive reception functionality on a Queue. "
+				+ "Therefore a standard reception connection is going to be established.");
+		receive(destinationName, messageListener);
 		
-		Queue destination = new ActiveMQQueue(destinationName + "?consumer.exclusive=true");
-		container.setDestination(destination);
-		
-		container.initialize();
-		container.start();
-		logger.info("Connection established to the queue {} as exclusive consumer. "
-				+ "Messages will be delivered to the instance of the class {} with name {}", 
-				destination, messageListener.getClass().getName(), messageListener.toString());
 	}
 	
 	
@@ -259,7 +254,6 @@ public class BmvMqTemplate implements MqTemplate {
 		container.setSubscriptionDurable(true);
 		container.setClientId(clientId);
 		container.setDurableSubscriptionName(durableSubscriptionName);
-		// TODO Ver si es necesario colocar un ExceptionListener
 		container.initialize();
 		container.start();
 		logger.info("Durable subscription established successfully to the topic {}. "
