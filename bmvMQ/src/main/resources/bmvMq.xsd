@@ -4,6 +4,7 @@
 	<xs:element name="bmvMq">
 		<xs:complexType>
 			<xs:all>
+				<xs:element name="clientId" type="xs:string" minOccurs="1" maxOccurs="1"/>
 				<xs:element name="url" type="xs:string" minOccurs="1" maxOccurs="1"/>
 				<xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>
 				<xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>

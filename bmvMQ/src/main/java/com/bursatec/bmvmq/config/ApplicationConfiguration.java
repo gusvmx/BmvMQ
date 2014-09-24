@@ -41,6 +41,7 @@ public class ApplicationConfiguration {
 	ConnectionFactory jmsConnectionFactory() throws JMSException {
 		progress.message.jclient.ConnectionFactory connectionFactory = new progress.message.jclient.ConnectionFactory();
 		connectionFactory.setConnectionURLs(configuration.getUrl());
+		connectionFactory.setClientID(configuration.getClientId());
 		connectionFactory.setFaultTolerant(true);
 		connectionFactory.setFaultTolerantReconnectTimeout(configuration.getReconnectionInterval());
 		connectionFactory.setDefaultUser(configuration.getUsername());
