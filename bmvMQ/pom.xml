@@ -35,6 +35,12 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<test.broker.url>vm://localhost?broker.persistent=false</test.broker.url>
+		<test.broker.clientId>bmvmq-junit</test.broker.clientId>
+		<test.broker.username>admin</test.broker.username>
+		<test.broker.password>admin</test.broker.password>
+		<test.broker.reconnectionInterval>5000</test.broker.reconnectionInterval>
+		<test.broker.maxConnections>8</test.broker.maxConnections>
 	</properties>
 
 	<developers>
@@ -90,14 +96,20 @@
 			<version>4.0.6.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.7</version>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+			<version>5.10.0</version>
 		</dependency>
 		<dependency>
-			<groupId>sonic-client</groupId>
-			<artifactId>sonic-client</artifactId>
-			<version>7.5</version>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-pool</artifactId>
+			<version>5.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-kahadb-store</artifactId>
+			<version>5.10.0</version>
+			<scope>test</scope>
 		</dependency>
 
 
@@ -110,6 +122,20 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+		<testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>${project.basedir}/src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

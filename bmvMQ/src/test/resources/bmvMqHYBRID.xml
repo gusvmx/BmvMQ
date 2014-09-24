@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bmvMq xsi:noNamespaceSchemaLocation="bmvMq.xsd"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<url>vm://localhost?broker.persistent=false</url>
-	<username>admin</username>
-	<password>admin</password>
+	<url>${test.broker.url}</url>
+	<clientId>${test.broker.clientId}</clientId>
+	<username>${test.broker.username}</username>
+	<password>${test.broker.password}</password>
 	<acknowledgeMode>AUTO_ACKNOWLEDGE</acknowledgeMode>
 	<destinationResolver>HYBRID</destinationResolver>
-	<reconnectionInterval>5000</reconnectionInterval>
-	<maxConnections>8</maxConnections>
+	<reconnectionInterval>${test.broker.reconnectionInterval}</reconnectionInterval>
+	<maxConnections>${test.broker.maxConnections}</maxConnections>
 </bmvMq>

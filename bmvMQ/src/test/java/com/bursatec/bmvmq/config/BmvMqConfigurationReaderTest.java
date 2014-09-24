@@ -55,7 +55,7 @@ public class BmvMqConfigurationReaderTest {
 	 */
 	@Test
 	public final void getConfigFromFS() {
-		String absolutePath = new File("src/test/resources/bmvMq.xml").getAbsolutePath();
+		String absolutePath = new File("target/test-classes/bmvMq.xml").getAbsolutePath();
 		try {
 			BmvMq config = BmvMqConfigurationReader.readConfiguration(absolutePath);
 			Assert.assertNotNull(config);
