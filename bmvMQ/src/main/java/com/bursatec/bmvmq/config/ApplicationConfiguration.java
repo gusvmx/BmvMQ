@@ -17,6 +17,7 @@ import org.springframework.jms.support.destination.DynamicDestinationResolver;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 
 import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.listener.BmvMqExceptionListener;
 
 /**
  * @author gus
@@ -43,6 +44,7 @@ public class ApplicationConfiguration {
 		connectionFactory.setUserName(configuration.getUsername());
 		connectionFactory.setPassword(configuration.getPassword());
 		connectionFactory.setUseAsyncSend(configuration.isAsyncSend());
+		connectionFactory.setExceptionListener(new BmvMqExceptionListener());
 		PooledConnectionFactory pooledConnectionFactory = new PooledConnectionFactory(connectionFactory);
 		pooledConnectionFactory.setMaxConnections(configuration.getMaxConnections());
 		
