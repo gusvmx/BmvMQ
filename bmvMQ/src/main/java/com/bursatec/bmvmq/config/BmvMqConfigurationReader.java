@@ -61,7 +61,11 @@ public final class BmvMqConfigurationReader {
 			Schema schema = sf.newSchema(new Source[] { new StreamSource(uri.toString()) });
 			unmarshaller.setSchema(schema);
 			
-			return (BmvMq) unmarshaller.unmarshal(configFile);
+			BmvMq config = (BmvMq) unmarshaller.unmarshal(configFile);
+			if (config.isAsyncSend() == null) {
+				config.setAsyncSend(true);
+			}
+			return config;
 		} catch (SAXException e) {
 			throw new InvalidBmvMqConfigurationException(e);
 		} catch (URISyntaxException e) {

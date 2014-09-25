@@ -83,6 +83,9 @@ public class BmvMqTemplate implements MqTemplate {
 	 */
 	public BmvMqTemplate(final String configFileLocation) throws FileNotFoundException {
 		BmvMq config = BmvMqConfigurationReader.readConfiguration(configFileLocation);
+		if (config.isAsyncSend() == null) {
+			config.setAsyncSend(true);
+		}
 		ApplicationConfiguration.setConfiguration(config);
 		ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
 		this.connectionFactory = context.getBean(ConnectionFactory.class);
