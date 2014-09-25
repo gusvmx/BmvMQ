@@ -42,6 +42,7 @@ public class ApplicationConfiguration {
 		connectionFactory.setBrokerURL(configuration.getUrl());
 		connectionFactory.setUserName(configuration.getUsername());
 		connectionFactory.setPassword(configuration.getPassword());
+		connectionFactory.setUseAsyncSend(configuration.isAsyncSend());
 		PooledConnectionFactory pooledConnectionFactory = new PooledConnectionFactory(connectionFactory);
 		pooledConnectionFactory.setMaxConnections(configuration.getMaxConnections());
 		
