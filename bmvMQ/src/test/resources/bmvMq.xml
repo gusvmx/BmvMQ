@@ -9,4 +9,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<destinationResolver>DYNAMIC</destinationResolver>
 	<reconnectionInterval>${test.broker.reconnectionInterval}</reconnectionInterval>
 	<maxConnections>${test.broker.maxConnections}</maxConnections>
+	<asyncSend>true</asyncSend>
+	<errorHandlerClassName>com.bursatec.bmvmq.listener.CustomBmvMqErrorHandler</errorHandlerClassName>
 </bmvMq>
