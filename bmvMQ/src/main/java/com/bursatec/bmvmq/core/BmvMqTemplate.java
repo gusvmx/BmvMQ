@@ -30,6 +30,7 @@ import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.config.ApplicationConfiguration;
 import com.bursatec.bmvmq.config.BmvMqConfigurationReader;
 import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.listener.BmvMqErrorHandlerAdapter;
 import com.bursatec.bmvmq.listener.MessageListener;
 
 /**
@@ -83,9 +84,6 @@ public class BmvMqTemplate implements MqTemplate {
 	 */
 	public BmvMqTemplate(final String configFileLocation) throws FileNotFoundException {
 		BmvMq config = BmvMqConfigurationReader.readConfiguration(configFileLocation);
-		if (config.isAsyncSend() == null) {
-			config.setAsyncSend(true);
-		}
 		ApplicationConfiguration.setConfiguration(config);
 		ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
 		this.connectionFactory = context.getBean(ConnectionFactory.class);
@@ -218,6 +216,7 @@ public class BmvMqTemplate implements MqTemplate {
 		container.setConnectionFactory(connectionFactory);
 		container.setDestinationName(destination);
 		container.setRecoveryInterval(ApplicationConfiguration.getConfiguration().getReconnectionInterval());
+		container.setErrorHandler(new BmvMqErrorHandlerAdapter());
 		configureAcknowledgeMode(container);
 		logger.info("The message listener for the destination {} has been configured with {} ack mode", 
 				destination, ApplicationConfiguration.getConfiguration().getAcknowledgeMode());
