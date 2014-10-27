@@ -45,6 +45,8 @@ public class ApplicationConfiguration {
 		connectionFactory.setPassword(configuration.getPassword());
 		connectionFactory.setUseAsyncSend(configuration.isAsyncSend());
 		connectionFactory.setExceptionListener(new BmvMqExceptionListener());
+		connectionFactory.setClientIDPrefix(configuration.getClientId());
+		connectionFactory.setConnectionIDPrefix(configuration.getClientId() + "-conn-");
 		PooledConnectionFactory pooledConnectionFactory = new PooledConnectionFactory(connectionFactory);
 		pooledConnectionFactory.setMaxConnections(configuration.getMaxConnections());
 		
