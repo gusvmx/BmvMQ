@@ -130,5 +130,15 @@ public interface MqTemplate {
 	 */
 	void durableSubscription(String destination, String durableSubscriptionName, 
 			MessageListener messageListener);
+	
+	/**
+	 * @param destination El nombre del queue del que se dejará de recibir mensajes.
+	 */
+	void stopReceiving(String destination);
+	
+	/**
+	 * @param destination El nombre del topico del que se desuscribirá para dejar de recibir mensajes.
+	 */
+	void unsubscribe(String destination);
 
 }
