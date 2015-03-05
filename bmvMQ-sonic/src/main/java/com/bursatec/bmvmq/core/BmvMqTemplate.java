@@ -1,0 +1,263 @@
+/**
+ * Bursatec - BMV Sep 9, 2014
+ * This software is the confidential and proprietary information of 
+ * Bursatec and Bolsa Mexicana de Valores("Confidential Information").
+ *
+ * You shall not disclose such confidential information and shall use
+ * it only within a project and/or the offices of Bursatec or Bolsa Mexicana de Valores
+ */
+package com.bursatec.bmvmq.core;
+
+import java.io.FileNotFoundException;
+import java.io.Serializable;
+
+import javax.jms.ConnectionFactory;
+import javax.jms.Session;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
+import org.springframework.jms.listener.adapter.MessageListenerAdapter;
+import org.springframework.transaction.jta.JtaTransactionManager;
+
+import com.bursatec.bmvmq.MqTemplate;
+import com.bursatec.bmvmq.config.ApplicationConfiguration;
+import com.bursatec.bmvmq.config.BmvMqConfigurationReader;
+import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.listener.MessageListener;
+
+/**
+ * @author gus
+ *
+ */
+public class BmvMqTemplate implements MqTemplate {
+
+	/***/
+	public static final String DEFAULT_CONFIG_FILE_LOCATION = "classpath:bmvMq.xml";
+	/**
+	 * 
+	 */
+	private final Logger logger = LoggerFactory.getLogger(BmvMqTemplate.class);
+
+	/**
+	 * La fabrica de conexiones JMS.
+	 */
+	private ConnectionFactory connectionFactory;
+	/**
+	 * 
+	 */
+	private JmsTemplate jmsQueueTemplate;
+	/**
+	 * 
+	 */
+	private JmsTemplate jmsTopicTemplate;
+
+	/**
+	 * Constructor por default.
+	 * 
+	 * @throws FileNotFoundException
+	 *             En caso de no encontrar en el classpath el archivo de
+	 *             configuración bmvMq.xml
+	 */
+	public BmvMqTemplate() throws FileNotFoundException {
+		this(DEFAULT_CONFIG_FILE_LOCATION);
+	}
+	
+	/**
+	 * @param configFileLocation
+	 *            La ubicación del archivo de configuración.
+	 * 
+	 *            La ubicación del archivo puede llevar los siguientes prefijos:
+	 *            classpath:, file:, jar:, zip:
+	 *            
+	 *            En caso de no contar con un prefijo, el archivo se buscará en el FS.
+	 * @throws FileNotFoundException
+	 *             En caso de no encontrar el archivo de configuración en la
+	 *             ubicación indicada.
+	 */
+	public BmvMqTemplate(final String configFileLocation) throws FileNotFoundException {
+		BmvMq config = BmvMqConfigurationReader.readConfiguration(configFileLocation);
+		ApplicationConfiguration.setConfiguration(config);
+		ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+		this.connectionFactory = context.getBean(ConnectionFactory.class);
+		this.jmsQueueTemplate = (JmsTemplate) context.getBean("jmsQueueTemplate");
+		this.jmsTopicTemplate = (JmsTemplate) context.getBean("jmsTopicTemplate");
+		context.close();
+		
+	}
+
+	@Override
+	public final void publish(final String destination,
+			final Serializable message) {
+		MessageCreator messageCreator = new SerializableMessageCreator(message);
+		jmsTopicTemplate.send(destination, messageCreator);
+		logger.debug("Serializable object message published to the topic {}", destination);
+	}
+
+	@Override
+	public final void publish(final String destination, final String message) {
+		MessageCreator messageCreator = new StringMessageCreator(message);
+		jmsTopicTemplate.send(destination, messageCreator);
+		logger.debug("String message published to the topic {}", destination);
+	}
+
+	@Override
+	public final void publish(final String destination, final byte[] message) {
+		MessageCreator messageCreator = new ByteArrayMessageCreator(message);
+		jmsTopicTemplate.send(destination, messageCreator);
+		logger.debug("Byte array message published to the topic {}", destination);
+	}
+
+	@Override
+	public final void send(final String destination, final Serializable message) {
+		MessageCreator messageCreator = new SerializableMessageCreator(message);
+		jmsQueueTemplate.send(destination, messageCreator);
+		logger.debug("Serializable object message sent to the queue {}", destination);
+	}
+	
+	@Override
+	public final void send(final String destination, final Serializable message, final String messageGroup) {
+		MessageCreator messageCreator = new SerializableMessageCreator(message, messageGroup);
+		jmsQueueTemplate.send(destination, messageCreator);
+		logger.debug("Serializable object message sent to the queue {} to the message group {}", 
+				destination, messageGroup);
+		logger.warn("Message grouping is solely available when using SonicMQ8.x+ or ActiveMQ");
+	}
+
+	@Override
+	public final void send(final String destination, final String message) {
+		MessageCreator messageCreator = new StringMessageCreator(message);
+		jmsQueueTemplate.send(destination, messageCreator);
+		logger.debug("String message sent to the queue {}", destination);
+	}
+	
+	@Override
+	public final void send(final String destination, final String message, final String messageGroup) {
+		MessageCreator messageCreator = new StringMessageCreator(message, messageGroup);
+		jmsQueueTemplate.send(destination, messageCreator);
+		logger.debug("String message sent to the queue {} to the message group {}", destination, messageGroup);
+		logger.warn("Message grouping is solely available when using SonicMQ8.x+ or ActiveMQ");
+	}
+
+	@Override
+	public final void send(final String destination, final byte[] message) {
+		MessageCreator messageCreator = new ByteArrayMessageCreator(message);
+		jmsQueueTemplate.send(destination, messageCreator);
+		logger.debug("Byte array message sent to the queue {}", destination);
+	}
+	
+	@Override
+	public final void send(final String destination, final byte[] message, final String messageGroup) {
+		MessageCreator messageCreator = new ByteArrayMessageCreator(message, messageGroup);
+		jmsQueueTemplate.send(destination, messageCreator);
+		logger.debug("Byte array message sent to the queue {} to the message group {}", destination, messageGroup);
+		logger.warn("Message grouping is solely available when using SonicMQ8.x+ or ActiveMQ");
+	}
+	
+	@Override
+	public final void receiveExclusively(final String destinationName,
+			final MessageListener messageListener) {
+		logger.warn("This bmvMQ version doesn't have implemented the exclusive reception functionality on a Queue. "
+				+ "Therefore a standard reception connection is going to be established.");
+		receive(destinationName, messageListener);
+		
+	}
+	
+	
+
+	@Override
+	public final void receive(final String destination,
+			final MessageListener messageListener) {
+		DefaultMessageListenerContainer container = createContainer(destination, messageListener);
+		container.initialize();
+		container.start();
+		logger.info("Connection established to the queue {}. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
+
+	@Override
+	public final void subscribe(final String destination,
+			final MessageListener messageListener) {
+		DefaultMessageListenerContainer container = createContainer(destination, messageListener);
+		container.setPubSubDomain(true);
+		container.initialize();
+		container.start();
+		logger.info("Subscribed successfully to the topic {}. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
+
+	/**
+	 * @param destination
+	 *            El destino: nombre del queue o nombre del tópico.
+	 * @param messageListener
+	 *            El message listener de la aplicación donde se entregarán los
+	 *            mensajes.
+	 * @return El message listener adapter apuntando hacia el destino indicado.
+	 */
+	private DefaultMessageListenerContainer createContainer(
+			final String destination, final MessageListener messageListener) {
+		MessageListenerAdapter adapter = new MessageListenerAdapter(messageListener);
+		adapter.setDefaultListenerMethod("onMessage");
+
+		DefaultMessageListenerContainer container = new DefaultMessageListenerContainer();
+		container.setMessageListener(adapter);
+		container.setConnectionFactory(connectionFactory);
+		container.setDestinationName(destination);
+		container.setRecoveryInterval(ApplicationConfiguration.getConfiguration().getReconnectionInterval());
+		configureAcknowledgeMode(container);
+		logger.info("The message listener for the destination {} has been configured with {} ack mode", 
+				destination, ApplicationConfiguration.getConfiguration().getAcknowledgeMode());
+		return container;
+	}
+	
+	/**
+	 * Configura la modalidad de acuse de recibo.
+	 * @param container El contenedor que será configurado.
+	 */
+	private void configureAcknowledgeMode(final DefaultMessageListenerContainer container) {
+		BmvMq config = ApplicationConfiguration.getConfiguration();
+		switch (config.getAcknowledgeMode()) {
+		case CLIENT_ACKNOWLEDGE:
+			container.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
+			break;
+		case DUPS_OK_ACKNOWLEDGE:
+			container.setSessionAcknowledgeMode(Session.DUPS_OK_ACKNOWLEDGE);
+			break;
+		case SESSION_TRANSACTED:
+			container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+			container.setSessionTransacted(true);
+			break;
+		case SESSION_XA_TRANSACTED:
+			container.setSessionAcknowledgeMode(Session.SESSION_TRANSACTED);
+			container.setSessionTransacted(true);
+			container.setTransactionManager(new JtaTransactionManager());
+			break;
+		case AUTO_ACKNOWLEDGE:
+		default:
+			container.setSessionAcknowledgeMode(Session.AUTO_ACKNOWLEDGE);
+			break;
+		}
+	}
+
+	@Override
+	public final void durableSubscription(final String destination,
+			final String durableSubscriptionName,
+			final MessageListener messageListener) {
+		DefaultMessageListenerContainer container = createContainer(destination, messageListener);
+		container.setPubSubDomain(true);
+		container.setSubscriptionDurable(true);
+		container.setDurableSubscriptionName(durableSubscriptionName);
+		container.initialize();
+		container.start();
+		logger.info("Durable subscription established successfully to the topic {}. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
+
+}

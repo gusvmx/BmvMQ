@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.bursatec.jms</groupId>
+		<artifactId>bmvMQ</artifactId>
+		<version>1.0.6-SNAPSHOT</version>
+	</parent>
+	<artifactId>bmvMQ-amq</artifactId>
+	<name>bmvMQ-amq</name>
+	<url>http://maven.apache.org</url>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<test.broker.url>vm://localhost?broker.persistent=false</test.broker.url>
+		<test.broker.clientId>bmvmq-junit</test.broker.clientId>
+		<test.broker.username>admin</test.broker.username>
+		<test.broker.password>admin</test.broker.password>
+		<test.broker.reconnectionInterval>5000</test.broker.reconnectionInterval>
+		<test.broker.maxConnections>8</test.broker.maxConnections>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.bursatec.jms</groupId>
+			<artifactId>bmvMQ-api</artifactId>
+			<version>1.0.6-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-pool</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-kahadb-store</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,10 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.bursatec.jms</groupId>
 	<artifactId>bmvMQ</artifactId>
 	<version>1.0.6-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
 
 	<name>bmvMQ</name>
 	<description>API de conexión a JMS de la Bolsa Mexicana de Valores</description>
@@ -38,16 +39,6 @@
 			<url>http://10.100.144.58:8081/artifactory/plugins-release-local</url>
 		</pluginRepository>
 	</pluginRepositories>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<test.broker.url>vm://localhost?broker.persistent=false</test.broker.url>
-		<test.broker.clientId>bmvmq-junit</test.broker.clientId>
-		<test.broker.username>admin</test.broker.username>
-		<test.broker.password>admin</test.broker.password>
-		<test.broker.reconnectionInterval>5000</test.broker.reconnectionInterval>
-		<test.broker.maxConnections>8</test.broker.maxConnections>
-	</properties>
 
 	<developers>
 		<developer>
@@ -102,22 +93,10 @@
 			<version>4.0.6.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-broker</artifactId>
-			<version>5.10.0</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.7</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-pool</artifactId>
-			<version>5.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-kahadb-store</artifactId>
-			<version>5.10.0</version>
-			<scope>test</scope>
-		</dependency>
-
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -144,6 +123,31 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>sonic-client</groupId>
+				<artifactId>sonic-client</artifactId>
+				<version>7.5</version>
+			</dependency>
+			<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+			<version>5.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-pool</artifactId>
+			<version>5.10.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-kahadb-store</artifactId>
+			<version>5.10.0</version>
+		</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
@@ -249,23 +253,6 @@
 					<aggregate>true</aggregate>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.jvnet.jaxb2.maven2</groupId>
-				<artifactId>maven-jaxb2-plugin</artifactId>
-				<version>0.7.1</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<schemaDirectory>src/main/resources/</schemaDirectory>
-					<generateDirectory>src/main/java</generateDirectory>
-					<generatePackage>com.bursatec.bmvmq.config.bind</generatePackage>
-				</configuration>
-			</plugin>
 		</plugins>
 
 		<pluginManagement>
@@ -295,7 +282,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore />
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -305,4 +292,9 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<modules>
+		<module>bmvMQ-api</module>
+    <module>bmvMQ-amq</module>
+    <module>bmvMQ-sonic</module>
+  </modules>
 </project>
