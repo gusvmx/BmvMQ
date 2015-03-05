@@ -32,6 +32,13 @@
 		</repository>
 	</repositories>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>plugins-release-bursatec</id>
+			<url>http://10.100.144.58:8081/artifactory/plugins-release-local</url>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<test.broker.url>vm://localhost?broker.persistent=false</test.broker.url>
@@ -161,6 +168,24 @@
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>external.atlassian.jgitlabflow</groupId>
+				<artifactId>gitflow-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<flowInitContext>
+						<masterBranchName>master</masterBranchName>
+						<featureBranchPrefix>feature-</featureBranchPrefix>
+						<releaseBranchPrefix>release-</releaseBranchPrefix>
+						<hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+					</flowInitContext>
+					<pushFeatures>true</pushFeatures>
+					<pushReleases>true</pushReleases>
+					<pushHotfixes>true</pushHotfixes>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<allowSnapshots>true</allowSnapshots>
 				</configuration>
 			</plugin>
 			<plugin>
