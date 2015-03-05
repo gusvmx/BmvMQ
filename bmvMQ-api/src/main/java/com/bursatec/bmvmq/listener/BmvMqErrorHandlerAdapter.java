@@ -14,8 +14,6 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ErrorHandler;
 
 import com.bursatec.bmvmq.InvalidBmvMqConfigurationException;
-import com.bursatec.bmvmq.config.ApplicationConfiguration;
-import com.bursatec.bmvmq.config.bind.BmvMq;
 
 /**
  * @author gus
@@ -30,11 +28,11 @@ public class BmvMqErrorHandlerAdapter implements ErrorHandler {
 	 */
 	private BmvMqErrorHandler errorHandler;
 	
-	/***/
-	public BmvMqErrorHandlerAdapter() {
-		BmvMq config = ApplicationConfiguration.getConfiguration();
-		String errorHandlerClassName = config.getErrorHandlerClassName();
-		if (config.getErrorHandlerClassName() != null) {
+	/**
+	 * @param errorHandlerClassName El nombre de la clase.
+	 */
+	public BmvMqErrorHandlerAdapter(final String errorHandlerClassName) {
+		if (errorHandlerClassName != null) {
 			try {
 				@SuppressWarnings("unchecked")
 				Class<BmvMqErrorHandler> loadedClass = (Class<BmvMqErrorHandler>) 

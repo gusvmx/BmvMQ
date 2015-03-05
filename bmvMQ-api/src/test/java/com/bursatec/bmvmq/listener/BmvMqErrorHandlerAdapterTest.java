@@ -12,9 +12,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.InvalidBmvMqConfigurationException;
-import com.bursatec.bmvmq.config.ApplicationConfiguration;
-import com.bursatec.bmvmq.config.bind.BmvMq;
-import com.bursatec.bmvmq.throughput.SimpleMessageReceiver;
 
 /**
  * @author gus
@@ -25,30 +22,23 @@ public class BmvMqErrorHandlerAdapterTest {
 	/***/
 	@Test
 	public final void noErrorHandlerTest() {
-		BmvMq config = new BmvMq();
-		ApplicationConfiguration.setConfiguration(config);
-		BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter();
+		BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter(null);
 		adapter.handleError(new RuntimeException("Error inducido"));
 	}
 	
 	/***/
 	@Test
 	public final void withErrorHandlerTest() {
-		BmvMq config = new BmvMq();
-		config.setErrorHandlerClassName(CustomBmvMqErrorHandler.class.getName());
-		ApplicationConfiguration.setConfiguration(config);
-		BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter();
+		BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter(CustomBmvMqErrorHandler.class.getName());
 		adapter.handleError(new RuntimeException("Error inducido"));
 	}
 	
 	/***/
 	@Test
 	public final void classNotFoundTest() {
-		BmvMq config = new BmvMq();
-		config.setErrorHandlerClassName(CustomBmvMqErrorHandler.class.getName() + "1");
-		ApplicationConfiguration.setConfiguration(config);
 		try {
-			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter();
+			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter(CustomBmvMqErrorHandler.class.getName() 
+					+ "1");
 			adapter.handleError(null);
 			Assert.fail("Se debio arrojar una class not found exception");
 		} catch (InvalidBmvMqConfigurationException e) {
@@ -59,11 +49,8 @@ public class BmvMqErrorHandlerAdapterTest {
 	/***/
 	@Test
 	public final void cannotInstantiateTest() {
-		BmvMq config = new BmvMq();
-		config.setErrorHandlerClassName(SimpleMessageReceiver.class.getName());
-		ApplicationConfiguration.setConfiguration(config);
 		try {
-			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter();
+			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter(MockConstants.class.getName());
 			adapter.handleError(null);
 			Assert.fail("Se debio arrojar una IllegalAccessException");
 		} catch (InvalidBmvMqConfigurationException e) {
@@ -74,11 +61,8 @@ public class BmvMqErrorHandlerAdapterTest {
 	/***/
 	@Test
 	public final void instantiateInterfaceTest() {
-		BmvMq config = new BmvMq();
-		config.setErrorHandlerClassName(MessageListener.class.getName());
-		ApplicationConfiguration.setConfiguration(config);
 		try {
-			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter();
+			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter(MessageListener.class.getName());
 			adapter.handleError(null);
 			Assert.fail("Se debio arrojar una InstantiationException");
 		} catch (InvalidBmvMqConfigurationException e) {
@@ -89,11 +73,8 @@ public class BmvMqErrorHandlerAdapterTest {
 	/***/
 	@Test
 	public final void classCastException() {
-		BmvMq config = new BmvMq();
-		config.setErrorHandlerClassName(BmvMqExceptionListener.class.getName());
-		ApplicationConfiguration.setConfiguration(config);
 		try {
-			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter();
+			BmvMqErrorHandlerAdapter adapter = new BmvMqErrorHandlerAdapter(BmvMqExceptionListener.class.getName());
 			adapter.handleError(null);
 			Assert.fail("Se debio arrojar una class cast exception");
 		} catch (ClassCastException e) {

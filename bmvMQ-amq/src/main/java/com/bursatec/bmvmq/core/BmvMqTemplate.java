@@ -229,11 +229,12 @@ public class BmvMqTemplate implements MqTemplate {
 		container.setMessageListener(adapter);
 		container.setConnectionFactory(connectionFactory);
 		container.setDestinationName(destination);
-		container.setRecoveryInterval(ApplicationConfiguration.getConfiguration().getReconnectionInterval());
-		container.setErrorHandler(new BmvMqErrorHandlerAdapter());
+		BmvMq config = ApplicationConfiguration.getConfiguration();
+		container.setRecoveryInterval(config.getReconnectionInterval());
+		container.setErrorHandler(new BmvMqErrorHandlerAdapter(config.getErrorHandlerClassName()));
 		configureAcknowledgeMode(container);
 		logger.info("The message listener for the destination {} has been configured with {} ack mode", 
-				destination, ApplicationConfiguration.getConfiguration().getAcknowledgeMode());
+				destination, config.getAcknowledgeMode());
 		return container;
 	}
 	
