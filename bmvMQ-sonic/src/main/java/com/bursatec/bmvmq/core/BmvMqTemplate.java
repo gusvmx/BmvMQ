@@ -10,6 +10,8 @@ package com.bursatec.bmvmq.core;
 
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
@@ -28,6 +30,7 @@ import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.config.ApplicationConfiguration;
 import com.bursatec.bmvmq.config.BmvMqConfigurationReader;
 import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.listener.BmvMqErrorHandlerAdapter;
 import com.bursatec.bmvmq.listener.MessageListener;
 
 /**
@@ -38,23 +41,20 @@ public class BmvMqTemplate implements MqTemplate {
 
 	/***/
 	public static final String DEFAULT_CONFIG_FILE_LOCATION = "classpath:bmvMq.xml";
-	/**
-	 * 
-	 */
+	/***/
 	private final Logger logger = LoggerFactory.getLogger(BmvMqTemplate.class);
-
 	/**
 	 * La fabrica de conexiones JMS.
 	 */
 	private ConnectionFactory connectionFactory;
-	/**
-	 * 
-	 */
+	/***/
 	private JmsTemplate jmsQueueTemplate;
-	/**
-	 * 
-	 */
+	/***/
 	private JmsTemplate jmsTopicTemplate;
+	/***/
+	private Map<String, DefaultMessageListenerContainer> queueContainers;
+	/***/
+	private Map<String, DefaultMessageListenerContainer> topicContainers;
 
 	/**
 	 * Constructor por default.
@@ -86,6 +86,8 @@ public class BmvMqTemplate implements MqTemplate {
 		this.connectionFactory = context.getBean(ConnectionFactory.class);
 		this.jmsQueueTemplate = (JmsTemplate) context.getBean("jmsQueueTemplate");
 		this.jmsTopicTemplate = (JmsTemplate) context.getBean("jmsTopicTemplate");
+		this.queueContainers = new HashMap<String, DefaultMessageListenerContainer>();
+		this.topicContainers = new HashMap<String, DefaultMessageListenerContainer>();
 		context.close();
 		
 	}
@@ -167,14 +169,20 @@ public class BmvMqTemplate implements MqTemplate {
 		
 	}
 	
-	
+	/**
+	 * @param container El contenedor del queue que se inicializará.
+	 */
+	private void initializeQueueContainer(final DefaultMessageListenerContainer container) {
+		container.initialize();
+		container.start();
+		queueContainers.put(container.getDestinationName(), container);
+	}
 
 	@Override
 	public final void receive(final String destination,
 			final MessageListener messageListener) {
 		DefaultMessageListenerContainer container = createContainer(destination, messageListener);
-		container.initialize();
-		container.start();
+		initializeQueueContainer(container);
 		logger.info("Connection established to the queue {}. "
 				+ "Messages will be delivered to the instance of the class {} with name {}", 
 				destination, messageListener.getClass().getName(), messageListener.toString());
@@ -185,11 +193,19 @@ public class BmvMqTemplate implements MqTemplate {
 			final MessageListener messageListener) {
 		DefaultMessageListenerContainer container = createContainer(destination, messageListener);
 		container.setPubSubDomain(true);
-		container.initialize();
-		container.start();
+		initializeTopicContainer(container);
 		logger.info("Subscribed successfully to the topic {}. "
 				+ "Messages will be delivered to the instance of the class {} with name {}", 
 				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
+	
+	/**
+	 * @param container El contenedor del queue que se inicializará.
+	 */
+	private void initializeTopicContainer(final DefaultMessageListenerContainer container) {
+		container.initialize();
+		container.start();
+		topicContainers.put(container.getDestinationName(), container);
 	}
 
 	/**
@@ -209,10 +225,12 @@ public class BmvMqTemplate implements MqTemplate {
 		container.setMessageListener(adapter);
 		container.setConnectionFactory(connectionFactory);
 		container.setDestinationName(destination);
-		container.setRecoveryInterval(ApplicationConfiguration.getConfiguration().getReconnectionInterval());
+		BmvMq config = ApplicationConfiguration.getConfiguration();
+		container.setRecoveryInterval(config.getReconnectionInterval());
+		container.setErrorHandler(new BmvMqErrorHandlerAdapter(config.getErrorHandlerClassName()));
 		configureAcknowledgeMode(container);
 		logger.info("The message listener for the destination {} has been configured with {} ack mode", 
-				destination, ApplicationConfiguration.getConfiguration().getAcknowledgeMode());
+				destination, config.getAcknowledgeMode());
 		return container;
 	}
 	
@@ -253,11 +271,33 @@ public class BmvMqTemplate implements MqTemplate {
 		container.setPubSubDomain(true);
 		container.setSubscriptionDurable(true);
 		container.setDurableSubscriptionName(durableSubscriptionName);
-		container.initialize();
-		container.start();
+		initializeTopicContainer(container);
 		logger.info("Durable subscription established successfully to the topic {}. "
 				+ "Messages will be delivered to the instance of the class {} with name {}", 
 				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
+
+	@Override
+	public final void stopReceiving(final String destination) {
+		stop(destination, queueContainers);
+	}
+
+	/**
+	 * Finaliza el contenedor indicado.
+	 * @param destination El nombre del destino que se desea detener.
+	 * @param containers La lista de contenedores donde se encuentra el destino deseado.
+	 */
+	private void stop(final String destination,
+			final Map<String, DefaultMessageListenerContainer> containers) {
+		DefaultMessageListenerContainer container = containers.get(destination);
+		if (container != null) {
+			container.stop();
+		}
+	}
+
+	@Override
+	public final void unsubscribe(final String destination) {
+		stop(destination, topicContainers);
 	}
 
 }
