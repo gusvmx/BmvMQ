@@ -37,6 +37,22 @@ public class ResourceUtilsTest {
 		Assert.assertFalse(resource.exists());
 	}
 	
+	/***/
+	@Test
+	public final void getFileFromFileSystemWithNoPrefix() {
+		File resource = null;
+		final String resourceLocation = "/test.test";
+		try {
+			resource = ResourceUtils.getFile(resourceLocation);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Assert.fail(e.getMessage());
+		}
+		Assert.assertNotNull(resource);
+		Assert.assertEquals(resourceLocation, resource.getAbsolutePath());
+		Assert.assertFalse(resource.exists());
+	}
+	
 	/**
 	 * @throws FileNotFoundException */
 	@Test
@@ -44,15 +60,6 @@ public class ResourceUtilsTest {
 		final String resourceLocation = "/test.test";
 		expectedException.expect(FileNotFoundException.class);
 		ResourceUtils.getFile(ResourceUtils.CLASSPATH_PREFIX + resourceLocation);
-	}
-	
-	/**
-	 * @throws FileNotFoundException */
-	@Test
-	public final void getInexistentFileFromClasspathWithNoPrefix() throws FileNotFoundException {
-		final String resourceLocation = "/test.test";
-		expectedException.expect(FileNotFoundException.class);
-		ResourceUtils.getFile(resourceLocation);
 	}
 	
 	/***/

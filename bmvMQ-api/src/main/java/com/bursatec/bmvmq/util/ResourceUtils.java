@@ -40,13 +40,8 @@ public final class ResourceUtils {
 	 */
 	public static File getFile(final String resourceLocation) throws FileNotFoundException {
 		String resourceLocationWithNoPrefix = resourceLocation;
-		if (resourceLocation.startsWith(FILE_PREFIX)) {
-			resourceLocationWithNoPrefix = resourceLocation.substring(FILE_PREFIX.length());
-			return new File(resourceLocationWithNoPrefix);
-		} else {
-			if (resourceLocation.startsWith(CLASSPATH_PREFIX)) {
-				resourceLocationWithNoPrefix = resourceLocation.substring(CLASSPATH_PREFIX.length());
-			}
+		if (resourceLocation.startsWith(CLASSPATH_PREFIX)) {
+			resourceLocationWithNoPrefix = resourceLocation.substring(CLASSPATH_PREFIX.length());
 			URI resource = null;
 			try {
 				URL resourceUrl = ResourceUtils.class.getResource(resourceLocationWithNoPrefix);
@@ -61,6 +56,11 @@ public final class ResourceUtils {
 				throw new FileNotFoundException(e.getMessage());
 			}
 			return new File(resource);
+		} else {
+			if (resourceLocation.startsWith(FILE_PREFIX)) {
+				resourceLocationWithNoPrefix = resourceLocation.substring(FILE_PREFIX.length());
+			}
+			return new File(resourceLocationWithNoPrefix);
 		}
 	}
 }
