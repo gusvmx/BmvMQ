@@ -12,7 +12,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.util.ResourceUtils;
@@ -23,6 +25,9 @@ import com.bursatec.bmvmq.util.ResourceUtils;
  */
 public class BmvMqConfigurationReaderTest {
 
+	/***/
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 	/**
 	 * 
 	 */
@@ -38,16 +43,13 @@ public class BmvMqConfigurationReaderTest {
 	}
 	
 	/**
+	 * @throws FileNotFoundException 
 	 * 
 	 */
 	@Test
-	public final void configurationNotFoundWithinClasspath() {
-		try {
-			BmvMq config = BmvMqConfigurationReader.readConfiguration("classpath:invalidFile.xml");
-			Assert.fail("Se debio haber lanzado una excepcion por no encontrar el archivo " + config);
-		} catch (FileNotFoundException e) {
-			Assert.assertNotNull(e);
-		}
+	public final void configurationNotFoundWithinClasspath() throws FileNotFoundException {
+		expectedException.expect(FileNotFoundException.class);
+		BmvMqConfigurationReader.readConfiguration("classpath:invalidFile.xml");
 	}
 	
 	/**
@@ -69,16 +71,13 @@ public class BmvMqConfigurationReaderTest {
 	}
 	
 	/**
+	 * @throws FileNotFoundException 
 	 * 
 	 */
 	@Test
-	public final void configNotFoundOnFS() {
+	public final void configNotFoundOnFS() throws FileNotFoundException {
 		String absolutePath = new File("inexistent.xml").getAbsolutePath();
-		try {
-			BmvMq config = BmvMqConfigurationReader.readConfiguration(absolutePath);
-			Assert.fail("Se debio haber lanzado una excepcion por no encontrar el archivo: " + config);
-		} catch (FileNotFoundException e) {
-			Assert.assertNotNull(e);
-		}
+		expectedException.expect(FileNotFoundException.class);
+		BmvMqConfigurationReader.readConfiguration(absolutePath);
 	}
 }
