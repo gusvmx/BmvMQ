@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bmvMq xsi:noNamespaceSchemaLocation="bmvMq.xsd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<url>vm://localhost?broker.persistent=false</url>
+	<clientId>bmvmq-junit</clientId>
+	<username>admin</username>
+	<password>admin</password>
+	<acknowledgeMode>AUTO_ACKNOWLEDGE</acknowledgeMode>
+	<destinationResolver>DYNAMIC</destinationResolver>
+	<reconnectionInterval>5000</reconnectionInterval>
+	<maxConnections>8</maxConnections>
+	<asyncSend>true</asyncSend>
+	<errorHandlerClassName>com.bursatec.bmvmq.listener.CustomBmvMqErrorHandler</errorHandlerClassName>
+</bmvMq>

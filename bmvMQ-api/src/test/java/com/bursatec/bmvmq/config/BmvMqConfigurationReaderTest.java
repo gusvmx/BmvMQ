@@ -15,7 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.config.bind.BmvMq;
-import com.bursatec.bmvmq.core.BmvMqTemplate;
+import com.bursatec.bmvmq.util.ResourceUtils;
 
 /**
  * @author gus
@@ -29,7 +29,7 @@ public class BmvMqConfigurationReaderTest {
 	@Test
 	public final void getConfigFromDefaultLocation() {
 		try {
-			BmvMq config = BmvMqConfigurationReader.readConfiguration(BmvMqTemplate.DEFAULT_CONFIG_FILE_LOCATION);
+			BmvMq config = BmvMqConfigurationReader.readConfiguration(ResourceUtils.CLASSPATH_PREFIX + "/bmvMq.xml");
 			Assert.assertNotNull(config);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

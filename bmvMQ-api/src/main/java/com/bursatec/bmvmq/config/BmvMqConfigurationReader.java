@@ -21,11 +21,11 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
 import com.bursatec.bmvmq.InvalidBmvMqConfigurationException;
 import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.util.ResourceUtils;
 
 /**
  * @author Gustavo Vargas
