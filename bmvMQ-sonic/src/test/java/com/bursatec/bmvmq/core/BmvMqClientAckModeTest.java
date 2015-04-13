@@ -55,7 +55,7 @@ public class BmvMqClientAckModeTest {
 	 */
 	@Test
 	public final void clientAckReception() throws FileNotFoundException, InterruptedException {
-		this.mqTemplate = new BmvMqTemplate("classpath:bmvMqClientAck.xml");
+		this.mqTemplate = new BmvMqTemplate("classpath:/bmvMqClientAck.xml");
 		this.latch = new CountDownLatch(NUMBER_OF_MESSAGES_TO_RECEIVE);
 		this.messageListener = new ExceptionInjectionMessageListener(latch);
 		mqTemplate.send(DESTINATION, MESSAGE);
