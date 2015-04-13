@@ -13,8 +13,9 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
@@ -27,7 +28,7 @@ import com.bursatec.bmvmq.listener.CountdownMessageListener;
 public class BmvMqStopTest {
 
 	/***/
-	private static MqTemplate template;
+	private MqTemplate template;
 	/***/
 	private static final int SUBSCRIPTION_TIME = 500;
 	/***/
@@ -39,11 +40,17 @@ public class BmvMqStopTest {
 	/***/
 	private static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
 	/**
-	 * @throws FileNotFoundException En caso de no encontrar el archivo de configuracion por default.
+	 * @throws FileNotFoundException Si no encuentra el archivo de configuración.
 	 */
-	@BeforeClass
-	public static final void initBroker() throws FileNotFoundException {
-		template = new BmvMqTemplate();
+	@Before
+	public final void start() throws FileNotFoundException {
+		this.template = new BmvMqTemplate("classpath:/bmvMqDupsOk.xml");
+	}
+	
+	/***/
+	@After
+	public final void stop() {
+		this.template.stop();
 	}
 	
 	/**
