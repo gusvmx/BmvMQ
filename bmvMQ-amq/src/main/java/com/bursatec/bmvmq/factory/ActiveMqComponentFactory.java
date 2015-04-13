@@ -38,6 +38,10 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActiveMqComponentFactory.class);
 	/***/
 	private PooledConnectionFactory pooledConnectionFactory;
+	/***/
+	private static final String FAILOVER_PROTOCOL = "failover:";
+	/***/
+	private static final String RECONNECTION_INTERVAL_PARAM = "maxReconnectDelay=";
 	
 	/**
 	 * @param configFileLocation La ubicación del archivo de configuración.
@@ -51,7 +55,8 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 	@Override
 	protected final ConnectionFactory getConnectionFactory(final BmvMq config) {
 		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-		connectionFactory.setBrokerURL(config.getUrl());
+		connectionFactory.setBrokerURL(FAILOVER_PROTOCOL + "(" + config.getUrl() + ")?" 
+				+ RECONNECTION_INTERVAL_PARAM + config.getReconnectionInterval());
 		connectionFactory.setUserName(config.getUsername());
 		connectionFactory.setPassword(config.getPassword());
 		connectionFactory.setUseAsyncSend(config.isAsyncSend());
