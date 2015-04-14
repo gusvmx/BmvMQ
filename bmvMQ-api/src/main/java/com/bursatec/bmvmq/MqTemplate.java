@@ -54,6 +54,10 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Publica el objeto serializable hacia el topico indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre del tópico donde se publicará el mensaje.
 	 * @param message El objeto serializable que se publicará.
 	 */
@@ -89,6 +93,10 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Publica el mensaje de texto hacia el topico indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre del tópico donde se publicará el mensaje.
 	 * @param text El mensaje a publicar.
 	 */
@@ -105,6 +113,10 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Publica el arreglo de bytes hacia el topico indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre del tópico donde se publicará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a publicar.
 	 */
@@ -121,6 +133,10 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Envía el objeto serializable hacia el queue indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El objeto serializable que se enviará.
 	 */
@@ -155,6 +171,10 @@ public abstract class MqTemplate {
 		return messageCreator;
 	}
 	/**
+	 * Envía el objeto serializable hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El objeto serializable que se enviará.
 	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
@@ -173,6 +193,10 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Envía el mensaje hacia el queue indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje a enviar.
 	 */
@@ -188,6 +212,10 @@ public abstract class MqTemplate {
 		LOGGER.debug("String message sent to the queue {}", destination);
 	}
 	/**
+	 * Envía el mensaje hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje a enviar.
 	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
@@ -205,6 +233,10 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Envía el arreglo de bytes hacia el queue indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a enviar.
 	 */
@@ -220,6 +252,10 @@ public abstract class MqTemplate {
 		LOGGER.debug("Byte array message sent to the queue {}", destination);
 	}
 	/**
+	 * Envía el arreglo de bytes hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a enviar.
 	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
@@ -237,8 +273,13 @@ public abstract class MqTemplate {
 	}
 	
 	/**
-	 * @param destinationName El nombre de la cola de donde se recibirán mensajes.
-	 * @param messageListener El callback donde se entregarán los mensajes recibidos.
+	 * Recibe exclusivamente del queue indicado. Por lo tanto, nadie más podrá
+	 * recibir de ese Queue hasta que el actual desista.
+	 * 
+	 * @param destinationName
+	 *            El nombre de la cola de donde se recibirán mensajes.
+	 * @param messageListener
+	 *            El callback donde se entregarán los mensajes recibidos.
 	 */
 	public final void receiveExclusively(final String destinationName,
 			final MessageListener messageListener) {
@@ -255,6 +296,8 @@ public abstract class MqTemplate {
 				destinationName, messageListener.getClass().getName(), messageListener.toString());
 	}
 	/**
+	 * Comienza a recibir mensajes del Queue indicado.
+	 * 
 	 * @param destination El nombre de la cola de donde se recibirán mensajes.
 	 * @param messageListener El callback donde se entregarán los mensajes recibidos.
 	 */
@@ -274,6 +317,8 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Se suscribe al topico indicado y comienza a recibir mensajes.
+	 * 
 	 * @param destination El nombre del tópico al que se realizará la suscripción.
 	 * @param messageListener El callback donde se entregarán los mensajes recibidos en la suscripción.
 	 */
@@ -351,6 +396,8 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Detiene la recepción de mensajes del queue indicado.
+	 * 
 	 * @param destination El nombre del queue del que se dejará de recibir mensajes.
 	 */
 	public final void stopReceiving(final String destination) {
@@ -377,6 +424,8 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Detiene la suscripción de mensajes del topico indicado.
+	 * 
 	 * @param destination El nombre del topico del que se desuscribirá para dejar de recibir mensajes.
 	 */
 	public final void unsubscribe(final String destination) {
