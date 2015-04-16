@@ -32,7 +32,6 @@ import com.bursatec.bmvmq.core.QueueMessageCreator;
 import com.bursatec.bmvmq.core.TopicMessageCreator;
 import com.bursatec.bmvmq.exception.ConnectionCreationFailureException;
 import com.bursatec.bmvmq.exception.SessionCreationFailureException;
-import com.bursatec.bmvmq.listener.BmvMqExceptionListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
 
@@ -107,17 +106,22 @@ public abstract class JmsComponentFactory {
 		Connection connection = null;
 		try {
 			connection = connectionFactory.createConnection();
-			connection.setExceptionListener(new BmvMqExceptionListener());
-			if (connection.getClientID() == null) {
-				connection.setClientID(config.getClientId());
-			}
+			setProprietaryConnectionParams(connection);
 			connection.start();
+			LOGGER.info("Conexión establecida.");
 		} catch (JMSException e) {
 			LOGGER.error("No se ha podido crear una conexión de ActiveMQ", e);
 			throw new ConnectionCreationFailureException("No se ha podido crear una conexión de ActiveMQ", e);
 		}
 		return connection;
 	}
+	
+	/**
+	 * @param connection La conexión hacia el broker JMS.
+	 * @throws JMSException Si ocurre algún error durante la asignación de los parámetros.
+	 */
+	protected abstract void setProprietaryConnectionParams(final Connection connection) throws JMSException;
+	
 	/**
 	 * @param destination El nombre del queue donde se enviará el mensaje.
 	 * @return Un message creator para el tópico indicado.

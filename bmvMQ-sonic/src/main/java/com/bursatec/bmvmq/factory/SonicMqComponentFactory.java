@@ -10,6 +10,7 @@ package com.bursatec.bmvmq.factory;
 
 import java.io.FileNotFoundException;
 
+import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -17,9 +18,13 @@ import javax.jms.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.config.BmvMqConfigurationReader;
+import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.exception.ConnectionFactoryCreationFailureException;
+import com.bursatec.bmvmq.listener.BmvMqExceptionListener;
 import com.bursatec.bmvmq.listener.MessageListener;
+import com.bursatec.bmvmq.listener.SonicMqExceptionListener;
 
 /**
  * @author gus - Bursatec
@@ -69,6 +74,18 @@ public class SonicMqComponentFactory extends JmsComponentFactory {
 		LOGGER.warn("Esta implementación de BmvMQ no tiene implementada la funcionalidad de recepción exclusiva. "
 				+ "Por lo tanto se establecerá una conexión de recepción estandar.");
 		return createQueueConsumer(destination, messageListener);
+	}
+
+	@Override
+	protected final void setProprietaryConnectionParams(final Connection connection)
+			throws JMSException {
+		progress.message.jimpl.Connection sonicConnection = (progress.message.jimpl.Connection) connection;
+		String exceptionListenerName = BmvMqContext.getConfiguration().getErrorHandlerClassName();
+		BmvMqExceptionListener exceptionListener = BmvMqConfigurationReader.initializeExceptionListener(
+				exceptionListenerName);
+		SonicMqExceptionListener exceptionListenerAdapter = new SonicMqExceptionListener(exceptionListener);
+		sonicConnection.setExceptionListener(exceptionListenerAdapter);
+		sonicConnection.setConnectionStateChangeListener(exceptionListenerAdapter);
 	}
 
 }
