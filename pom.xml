@@ -4,7 +4,7 @@
 
 	<groupId>com.bursatec.jms</groupId>
 	<artifactId>bmvMQ</artifactId>
-	<version>1.0.6-SNAPSHOT</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>bmvMQ</name>
@@ -272,7 +272,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore/>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
