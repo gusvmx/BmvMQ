@@ -37,7 +37,7 @@ public class BmvMqDupsOkAckModeTest {
 	 */
 	@Test
 	public final void dupsOkAckReception() throws FileNotFoundException, InterruptedException {
-		MqTemplate mqTemplate = new BmvMqTemplate("classpath:bmvMqDupsOk.xml");
+		MqTemplate mqTemplate = new BmvMqTemplate("classpath:/bmvMqDupsOk.xml");
 		ExceptionInjectionMessageListener messageListener = 
 				new ExceptionInjectionMessageListener(new CountDownLatch(0));
 		mqTemplate.send(DESTINATION, MESSAGE);

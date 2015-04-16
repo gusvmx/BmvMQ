@@ -56,7 +56,7 @@ public class BmvMqTransactionModeTest {
 	 */
 	@Test
 	public final void receiveAndSendWithinATransaction() throws FileNotFoundException, InterruptedException {
-		MqTemplate mqTemplate = new BmvMqTemplate("classpath:bmvMqLocalTransaction.xml");
+		MqTemplate mqTemplate = new BmvMqTemplate("classpath:/bmvMqLocalTransaction.xml");
 		CountDownLatch latch = new CountDownLatch(NUMBER_OF_MESSAGES_TO_RECEIVE);
 		FwMessagesAndExceptionInjectionMessageListener messageListener = 
 				new FwMessagesAndExceptionInjectionMessageListener(mqTemplate, SECOND_DESTINATION, latch);

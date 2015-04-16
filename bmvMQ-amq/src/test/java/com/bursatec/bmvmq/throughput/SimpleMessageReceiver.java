@@ -29,7 +29,7 @@ public final class SimpleMessageReceiver {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(final String[] args) throws FileNotFoundException {
-		MqTemplate mqTemplate = new BmvMqTemplate("classpath:bmvMqThroughput.xml");
+		MqTemplate mqTemplate = new BmvMqTemplate("classpath:/bmvMqThroughput.xml");
 		MessageReceivedCounter messageListener = new MessageReceivedCounter();
 		Thread throughputObserver = new Thread(new ThroughputObserver(messageListener), "ThroughputObserver");
 		mqTemplate.receive("throughputTest", messageListener);

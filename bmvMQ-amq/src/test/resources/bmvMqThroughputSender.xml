@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bmvMq xsi:noNamespaceSchemaLocation="bmvMq.xsd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<!-- 	<url>tcp://10.100.232.221:61617</url> -->
+	<url>tcp://10.100.79.157:61616</url>
+	<clientId>bmv-mq-performance-test-producer</clientId>
+	<username>admin</username>
+	<password>admin</password>
+	<acknowledgeMode>AUTO_ACKNOWLEDGE</acknowledgeMode>
+	<reconnectionInterval>5000</reconnectionInterval>
+	<maxConnections>3</maxConnections>
+</bmvMq>

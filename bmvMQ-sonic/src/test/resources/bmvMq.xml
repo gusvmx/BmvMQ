@@ -6,7 +6,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<username>${test.broker.username}</username>
 	<password>${test.broker.password}</password>
 	<acknowledgeMode>AUTO_ACKNOWLEDGE</acknowledgeMode>
-	<destinationResolver>DYNAMIC</destinationResolver>
 	<reconnectionInterval>${test.broker.reconnectionInterval}</reconnectionInterval>
 	<maxConnections>${test.broker.maxConnections}</maxConnections>
 </bmvMq>

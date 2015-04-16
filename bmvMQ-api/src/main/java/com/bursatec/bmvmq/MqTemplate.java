@@ -9,85 +9,334 @@
 package com.bursatec.bmvmq;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bursatec.bmvmq.core.AbstractMessageCreator;
+import com.bursatec.bmvmq.exception.ConsumerCreationFailureException;
+import com.bursatec.bmvmq.exception.MessageCreatorCreationFailureException;
+import com.bursatec.bmvmq.exception.SendMessageFailureException;
+import com.bursatec.bmvmq.factory.JmsComponentFactory;
 import com.bursatec.bmvmq.listener.MessageListener;
 
 /**
  * @author Gustavo Vargas
  *
  */
-public interface MqTemplate {
+public abstract class MqTemplate {
 
+	/***/
+	private static final Logger LOGGER = LoggerFactory.getLogger(MqTemplate.class);
+	/***/
+	public static final String DEFAULT_CONFIG_FILE_LOCATION = "classpath:/bmvMq.xml";
+	/** La fabrica de componentes JMS. */
+	private JmsComponentFactory componentFactory;
+	/***/
+	private Map<String, AbstractMessageCreator> queueMessageCreators = new HashMap<String, AbstractMessageCreator>();
+	/***/
+	private Map<String, AbstractMessageCreator> topicMessageCreators = new HashMap<String, AbstractMessageCreator>();
+	/***/
+	private Map<String, MessageConsumer> queueMessageConsumers = new HashMap<String, MessageConsumer>();
+	/***/
+	private Map<String, MessageConsumer> topicMessageConsumers = new HashMap<String, MessageConsumer>();
+	
 	/**
+	 * @param componentFactory La fábrica de componentes JMS.
+	 */
+	protected MqTemplate(final JmsComponentFactory componentFactory) {
+		this.componentFactory = componentFactory;
+	}
+	
+	/**
+	 * Publica el objeto serializable hacia el topico indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre del tópico donde se publicará el mensaje.
 	 * @param message El objeto serializable que se publicará.
 	 */
-	void publish(String destination, Serializable message);
+	public final void publish(final String destination, final Serializable message) {
+		AbstractMessageCreator messageCreator = getTopicMessageCreator(destination);
+		try {
+			messageCreator.send(message);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible publicar el mensaje al topico " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("Serializable object message published to the topic {}", destination);
+	}
 	
 	/**
-	 * @param destination El nombre del tópico donde se publicará el mensaje.
-	 * @param message El mensaje a publicar.
+	 * @param destination El nombre del tópico hacia donde se publicaran los mensajes.
+	 * @return Un message creator para el tópico indicado.
 	 */
-	void publish(String destination, String message);
+	private AbstractMessageCreator getTopicMessageCreator(final String destination) {
+		AbstractMessageCreator messageCreator = topicMessageCreators.get(destination);
+		if (messageCreator == null) {
+			try {
+				messageCreator = componentFactory.createTopicMessageCreator(destination);
+			} catch (JMSException e) {
+				String desc = "No ha podido ser posible crear un creador de mensajes del topico " + destination;
+				LOGGER.error(desc, e);
+				throw new MessageCreatorCreationFailureException(desc, e);
+			}
+			topicMessageCreators.put(destination, messageCreator);
+		}
+		return messageCreator;
+	}
 	
 	/**
+	 * Publica el mensaje de texto hacia el topico indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
+	 * @param destination El nombre del tópico donde se publicará el mensaje.
+	 * @param text El mensaje a publicar.
+	 */
+	public final void publish(final String destination, final String text) {
+		AbstractMessageCreator messageCreator = getTopicMessageCreator(destination);
+		try {
+			messageCreator.send(text);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible publicar el mensaje al topico " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("String message published to the topic {}", destination);
+	}
+	
+	/**
+	 * Publica el arreglo de bytes hacia el topico indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre del tópico donde se publicará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a publicar.
 	 */
-	void publish(String destination, byte[] message);
+	public final void publish(final String destination, final byte[] message) {
+		AbstractMessageCreator messageCreator = getTopicMessageCreator(destination);
+		try {
+			messageCreator.send(message);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible publicar el mensaje al topico " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("Byte array message published to the topic {}", destination);
+	}
 	
 	/**
+	 * Envía el objeto serializable hacia el queue indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El objeto serializable que se enviará.
 	 */
-	void send(String destination, Serializable message);
+	public final void send(final String destination, final Serializable message) {
+		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
+		try {
+			messageCreator.send(message);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("Serializable object message sent to the queue {}", destination);
+	}
+	
 	/**
+	 * @param destination El nombre del queue.
+	 * @return Un message creator para el queue indicado.
+	 */
+	private AbstractMessageCreator getQueueMessageCreator(final String destination) {
+		AbstractMessageCreator messageCreator = queueMessageCreators.get(destination);
+		if (messageCreator == null) {
+			try {
+				messageCreator = componentFactory.createQueueMessageCreator(destination);
+			} catch (JMSException e) {
+				String desc = "No ha podido ser posible crear un creador de mensajes del queue " + destination;
+				LOGGER.error(desc, e);
+				throw new MessageCreatorCreationFailureException(desc, e);
+			}
+			queueMessageCreators.put(destination, messageCreator);
+		}
+		return messageCreator;
+	}
+	/**
+	 * Envía el objeto serializable hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El objeto serializable que se enviará.
 	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
 	 */
-	void send(String destination, Serializable message, String messageGroup);
+	public final void send(final String destination, final Serializable message, final String messageGroup) {
+		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
+		try {
+			messageCreator.send(message, messageGroup);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("Serializable object message sent to the queue {} to the message group {}", 
+				destination, messageGroup);
+	}
 	
 	/**
+	 * Envía el mensaje hacia el queue indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje a enviar.
 	 */
-	void send(String destination, String message);
+	public final void send(final String destination, final String message) {
+		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
+		try {
+			messageCreator.send(message);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("String message sent to the queue {}", destination);
+	}
 	/**
+	 * Envía el mensaje hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje a enviar.
 	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
 	 */
-	void send(String destination, String message, String messageGroup);
+	public final void send(final String destination, final String message, final String messageGroup) {
+		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
+		try {
+			messageCreator.send(message, messageGroup);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("String message sent to the queue {} to the message group {}", destination, messageGroup);
+	}
 	
 	/**
+	 * Envía el arreglo de bytes hacia el queue indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a enviar.
 	 */
-	void send(String destination, byte[] message);
+	public final void send(final String destination, final byte[] message) {
+		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
+		try {
+			messageCreator.send(message);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("Byte array message sent to the queue {}", destination);
+	}
 	/**
+	 * Envía el arreglo de bytes hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a enviar.
 	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
 	 */
-	void send(String destination, byte[] message, String messageGroup);
+	public final void send(final String destination, final byte[] message, final String messageGroup) {
+		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
+		try {
+			messageCreator.send(message, messageGroup);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
+			LOGGER.error(desc, e);
+			throw new SendMessageFailureException(desc, e);
+		}
+		LOGGER.debug("Byte array message sent to the queue {} to the message group {}", destination, messageGroup);
+	}
 	
 	/**
+	 * Recibe exclusivamente del queue indicado. Por lo tanto, nadie más podrá
+	 * recibir de ese Queue hasta que el actual desista.
+	 * 
+	 * @param destinationName
+	 *            El nombre de la cola de donde se recibirán mensajes.
+	 * @param messageListener
+	 *            El callback donde se entregarán los mensajes recibidos.
+	 */
+	public final void receiveExclusively(final String destinationName,
+			final MessageListener messageListener) {
+		try {
+			MessageConsumer consumer = componentFactory.createExclusiveQueueConsumer(destinationName, messageListener);
+			queueMessageConsumers.put(destinationName, consumer);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible crear un consumidor exclusivo del queue " + destinationName;
+			LOGGER.error(desc, e);
+			throw new ConsumerCreationFailureException(desc, e);
+		}
+		LOGGER.info("Connection established to the queue {} as exclusive consumer. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destinationName, messageListener.getClass().getName(), messageListener.toString());
+	}
+	/**
+	 * Comienza a recibir mensajes del Queue indicado.
+	 * 
 	 * @param destination El nombre de la cola de donde se recibirán mensajes.
 	 * @param messageListener El callback donde se entregarán los mensajes recibidos.
 	 */
-	void receive(String destination, MessageListener messageListener);
-	/**
-	 * @param destination El nombre de la cola de donde se recibirán mensajes.
-	 * @param messageListener El callback donde se entregarán los mensajes recibidos.
-	 */
-	void receiveExclusively(String destination, MessageListener messageListener);
+	public final void receive(final String destination,
+			final MessageListener messageListener) {
+		try {
+			MessageConsumer consumer = componentFactory.createQueueConsumer(destination, messageListener);
+			queueMessageConsumers.put(destination, consumer);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible crear un consumidor del queue " + destination;
+			LOGGER.error(desc, e);
+			throw new ConsumerCreationFailureException(desc, e);
+		}
+		LOGGER.info("Connection established to the queue {}. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
 	
 	/**
+	 * Se suscribe al topico indicado y comienza a recibir mensajes.
+	 * 
 	 * @param destination El nombre del tópico al que se realizará la suscripción.
 	 * @param messageListener El callback donde se entregarán los mensajes recibidos en la suscripción.
 	 */
-	void subscribe(String destination, MessageListener messageListener);
+	public final void subscribe(final String destination,
+			final MessageListener messageListener) {
+		MessageConsumer consumer = null;
+		try {
+			consumer = componentFactory.createTopicConsumer(destination, messageListener);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible crear un consumidor del topico " + destination;
+			LOGGER.error(desc, e);
+			throw new ConsumerCreationFailureException(desc, e);
+		}
+		topicMessageConsumers.put(destination, consumer);
+		LOGGER.info("Subscribed successfully to the topic {}. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
 	
 	/**
 	 * Se suscribe al tópico indicado de manera durable. Esto significa que el
@@ -128,17 +377,67 @@ public interface MqTemplate {
 	 *            El callback donde se entregarán los mensajes recibidos en la
 	 *            suscripción.
 	 */
-	void durableSubscription(String destination, String durableSubscriptionName, 
-			MessageListener messageListener);
+	public final void durableSubscription(final String destination,
+			final String durableSubscriptionName,
+			final MessageListener messageListener) {
+		MessageConsumer consumer = null;
+		try {
+			consumer = componentFactory.createDurableSubscription(destination, durableSubscriptionName, 
+					messageListener);
+		} catch (JMSException e) {
+			String desc = "No ha podido ser posible crear un suscriptor durable del topico " + destination;
+			LOGGER.error(desc, e);
+			throw new ConsumerCreationFailureException(desc, e);
+		}
+		topicMessageConsumers.put(destination, consumer);
+		LOGGER.info("Durable subscription established successfully to the topic {}. "
+				+ "Messages will be delivered to the instance of the class {} with name {}", 
+				destination, messageListener.getClass().getName(), messageListener.toString());
+	}
 	
 	/**
+	 * Detiene la recepción de mensajes del queue indicado.
+	 * 
 	 * @param destination El nombre del queue del que se dejará de recibir mensajes.
 	 */
-	void stopReceiving(String destination);
+	public final void stopReceiving(final String destination) {
+		MessageConsumer queueConsumer = queueMessageConsumers.get(destination);
+		stop(queueConsumer, destination);
+	}
 	
 	/**
+	 * Finaliza el consumidor indicado.
+	 * @param consumer El consumidor que se cerrará.
+	 * @param destinationName El nombre del destino.
+	 */
+	private void stop(final MessageConsumer consumer, final String destinationName) {
+		if (consumer != null) {
+			try {
+				consumer.close();
+			} catch (JMSException e) {
+				LOGGER.error("Ocurrió un error al cerrar el consumidor del destino {}.", destinationName, e);
+			}
+			LOGGER.info("Se ha dejado de recibir mensajes del queue {}", destinationName);
+		} else {
+			LOGGER.warn("Se intento dejar de recibir de un consumidor de mensajes para el queue {}.", destinationName);
+		}
+	}
+	
+	/**
+	 * Detiene la suscripción de mensajes del topico indicado.
+	 * 
 	 * @param destination El nombre del topico del que se desuscribirá para dejar de recibir mensajes.
 	 */
-	void unsubscribe(String destination);
+	public final void unsubscribe(final String destination) {
+		MessageConsumer topicConsumer = topicMessageConsumers.get(destination);
+		stop(topicConsumer, destination);
+	}
+	
+	/**
+	 * Termina todas las conexiones, sesiones, productores y consumidores.
+	 */
+	public final void stop() {
+		componentFactory.stop();
+	}
 
 }

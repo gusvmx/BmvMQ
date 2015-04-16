@@ -21,11 +21,13 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.springframework.util.ResourceUtils;
 import org.xml.sax.SAXException;
 
 import com.bursatec.bmvmq.InvalidBmvMqConfigurationException;
 import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.listener.BmvMqExceptionListener;
+import com.bursatec.bmvmq.listener.DefaultExceptionListener;
+import com.bursatec.bmvmq.util.ResourceUtils;
 
 /**
  * @author Gustavo Vargas
@@ -65,6 +67,7 @@ public final class BmvMqConfigurationReader {
 			if (config.isAsyncSend() == null) {
 				config.setAsyncSend(true);
 			}
+			setExceptionListener(config);
 			return config;
 		} catch (SAXException e) {
 			throw new InvalidBmvMqConfigurationException(e);
@@ -73,6 +76,34 @@ public final class BmvMqConfigurationReader {
 					e);
 		} catch (JAXBException e) {
 			throw new InvalidBmvMqConfigurationException("El archivo de configuración es inválido", e);
+		}
+	}
+
+	/**
+	 * @param config Asigna el exception listener por default.
+	 */
+	private static void setExceptionListener(final BmvMq config) {
+		if (config.getErrorHandlerClassName() == null) {
+			config.setErrorHandlerClassName(DefaultExceptionListener.class.getName());
+		}
+	}
+	
+	/**
+	 * @param exceptionListenerName El nombre del exception listener a instanciar.
+	 * @return La instancia del exception listener proporcionado
+	 */
+	public static BmvMqExceptionListener initializeExceptionListener(final String exceptionListenerName) {
+		try {
+			@SuppressWarnings("unchecked")
+			Class<BmvMqExceptionListener> exceptionListener = 
+				(Class<BmvMqExceptionListener>) Class.forName(exceptionListenerName);
+			return exceptionListener.newInstance();
+		} catch (ClassNotFoundException e) {
+			throw new InvalidBmvMqConfigurationException(e.getMessage(), e);
+		} catch (InstantiationException e) {
+			throw new InvalidBmvMqConfigurationException(e.getMessage(), e);
+		} catch (IllegalAccessException e) {
+			throw new InvalidBmvMqConfigurationException(e.getMessage(), e);
 		}
 	}
 
