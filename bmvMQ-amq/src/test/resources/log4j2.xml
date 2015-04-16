@@ -9,6 +9,9 @@
 		<Logger name="com.bursatec.bmvmq" level="info" additivity="false">
 			<AppenderRef ref="Console" />
 		</Logger>
+		<Logger name="org.apache.activemq" level="info" additivity="false">
+			<AppenderRef ref="Console"/>
+		</Logger>
 		<Root level="error">
 			<AppenderRef ref="Console" />
 		</Root>
