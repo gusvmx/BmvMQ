@@ -31,7 +31,7 @@ public final class SimpleMessageSender {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(final String[] args) throws FileNotFoundException {
-		MqTemplate mqTemplate = new BmvMqTemplate("classpath:bmvMqThroughput.xml");
+		MqTemplate mqTemplate = new BmvMqTemplate("classpath:/bmvMqThroughputSender.xml");
 		final int numberOfMessagesToSend = 1000000;
 		final int printMessagesSentEvery = 1000;
 		int messagesSent = 0;
