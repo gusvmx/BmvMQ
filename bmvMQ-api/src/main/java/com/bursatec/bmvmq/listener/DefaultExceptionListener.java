@@ -1,5 +1,5 @@
 /**
- * Bursatec - BMV Sep 25, 2014
+ * Bursatec - BMV Apr 16, 2015
  * This software is the confidential and proprietary information of 
  * Bursatec and Bolsa Mexicana de Valores("Confidential Information").
  *
@@ -10,20 +10,19 @@ package com.bursatec.bmvmq.listener;
 
 import javax.jms.JMSException;
 
-import org.junit.Test;
-
 /**
- * @author gus
- *
+ * @author gus - Bursatec
+ * @version 1.0
  */
-public class BmvMqExceptionListenerTest {
+public class DefaultExceptionListener implements BmvMqExceptionListener {
 
-	/***/
-	@Test
-	public final void test() {
-		BmvMqExceptionListener listener = new DefaultExceptionListener();
-		listener.onException(new JMSException("Error inducido"));
-		listener.messagingInterrupted();
-		listener.messagingResumed();
-	}
+	@Override
+	public void onException(final JMSException jmsException) { }
+
+	@Override
+	public void messagingInterrupted() { }
+
+	@Override
+	public void messagingResumed() { }
+
 }

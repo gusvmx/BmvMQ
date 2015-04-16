@@ -1,5 +1,5 @@
 /**
- * Bursatec - BMV Sep 25, 2014
+ * Bursatec - BMV Apr 16, 2015
  * This software is the confidential and proprietary information of 
  * Bursatec and Bolsa Mexicana de Valores("Confidential Information").
  *
@@ -8,24 +8,33 @@
  */
 package com.bursatec.bmvmq.listener;
 
-import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * @author gus
- *
+ * @author gus - Bursatec
+ * @version 1.0
  */
-public class BmvMqExceptionListener implements ExceptionListener {
+public interface BmvMqExceptionListener {
 
-	/***/
-	private Logger logger = LoggerFactory.getLogger(BmvMqExceptionListener.class);
-	
-	@Override
-	public final void onException(final JMSException exception) {
-		logger.error(exception.getMessage(), exception);
-	}
+	/**
+	 * @param jmsException
+	 *            Un problema de mensajería.
+	 */
+	void onException(final JMSException jmsException);
 
+	/**
+	 * Callback que indica que la mensajería ha sido interrumpida porque se ha
+	 * perdido la conexión con el broker JMS.
+	 * 
+	 * A partir de este momento se intentará resuscribir cada cierto tiempo,
+	 * dependiendo del valor configurado en reconnectionInterval, hasta que se
+	 * reestablezca la conexión
+	 */
+	void messagingInterrupted();
+
+	/**
+	 * Callback que indica que la conexión con el broker ha sido establecida por
+	 * lo que la mensajería continua en operación.
+	 */
+	void messagingResumed();
 }
