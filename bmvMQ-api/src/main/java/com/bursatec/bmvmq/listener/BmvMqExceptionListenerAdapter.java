@@ -14,6 +14,8 @@ import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.config.BmvMqContext;
+
 /**
  * @author gus
  *
@@ -22,27 +24,11 @@ public class BmvMqExceptionListenerAdapter implements ExceptionListener {
 
 	/***/
 	private Logger logger = LoggerFactory.getLogger(BmvMqExceptionListenerAdapter.class);
-	/***/
-	private BmvMqExceptionListener exceptionListener;
 	
-	/**
-	 * @param exceptionListener El exception listener del cliente donde será notificado.
-	 */
-	public BmvMqExceptionListenerAdapter(final BmvMqExceptionListener exceptionListener) {
-		this.exceptionListener = exceptionListener;
-	}
-
 	@Override
 	public final void onException(final JMSException exception) {
 		logger.error(exception.getMessage(), exception);
-		exceptionListener.onException(exception);
+		BmvMqContext.getExceptionListener().onException(exception);
 	}
 
-	/**
-	 * @return the exceptionListener
-	 */
-	public final BmvMqExceptionListener getExceptionListener() {
-		return exceptionListener;
-	}
-	
 }
