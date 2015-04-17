@@ -22,19 +22,4 @@ public interface BmvMqExceptionListener {
 	 */
 	void onException(final JMSException jmsException);
 
-	/**
-	 * Callback que indica que la mensajería ha sido interrumpida porque se ha
-	 * perdido la conexión con el broker JMS.
-	 * 
-	 * A partir de este momento se intentará resuscribir cada cierto tiempo,
-	 * dependiendo del valor configurado en reconnectionInterval, hasta que se
-	 * reestablezca la conexión
-	 */
-	void messagingInterrupted();
-
-	/**
-	 * Callback que indica que la conexión con el broker ha sido establecida por
-	 * lo que la mensajería continua en operación.
-	 */
-	void messagingResumed();
 }

@@ -4,8 +4,10 @@
 package com.bursatec.bmvmq.config;
 
 import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.listener.BmvMqConnStateListener;
 import com.bursatec.bmvmq.listener.BmvMqExceptionListener;
 import com.bursatec.bmvmq.listener.DefaultExceptionListener;
+import com.bursatec.bmvmq.listener.connection.ConnStateLogger;
 
 /**
  * @author gus
@@ -19,6 +21,8 @@ public final class BmvMqContext {
 	private static BmvMq configuration;
 	/***/
 	private static BmvMqExceptionListener exceptionListener = new DefaultExceptionListener();
+	/***/
+	private static BmvMqConnStateListener connectionListener = new ConnStateLogger();
 
 	/***/
 	private BmvMqContext() { }
@@ -47,6 +51,18 @@ public final class BmvMqContext {
 	public static void setExceptionListener(
 			final BmvMqExceptionListener exceptionListener) {
 		BmvMqContext.exceptionListener = exceptionListener;
+	}
+	/**
+	 * @return the connectionListener
+	 */
+	public static BmvMqConnStateListener getConnectionListener() {
+		return connectionListener;
+	}
+	/**
+	 * @param connectionListener the connectionListener to set
+	 */
+	public static void setConnectionListener(final BmvMqConnStateListener connectionListener) {
+		BmvMqContext.connectionListener = new ConnStateLogger(connectionListener);
 	}
 
 }

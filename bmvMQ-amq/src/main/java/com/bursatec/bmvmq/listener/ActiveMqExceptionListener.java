@@ -38,14 +38,12 @@ public class ActiveMqExceptionListener extends BmvMqExceptionListenerAdapter imp
 
 	@Override
 	public final void transportInterupted() {
-		LOGGER.error("Se ha interrumpido la conexión hacia el broker JMS. Se intentará reconectar automáticamente.");
-		BmvMqContext.getExceptionListener().messagingInterrupted();
+		BmvMqContext.getConnectionListener().messagingInterrupted();
 	}
 
 	@Override
 	public final void transportResumed() {
-		LOGGER.info("Se ha establecido la conexión hacia el broker JMS.");
-		BmvMqContext.getExceptionListener().messagingResumed();
+		BmvMqContext.getConnectionListener().messagingResumed();
 	}
 
 	

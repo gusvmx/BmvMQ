@@ -27,19 +27,16 @@ public class SonicMqExceptionListener extends BmvMqExceptionListenerAdapter impl
 	
 	@Override
 	public final void connectionStateChanged(final int state) {
-		BmvMqExceptionListener exceptionListener = BmvMqContext.getExceptionListener();
+		BmvMqConnStateListener connectionListener = BmvMqContext.getConnectionListener();
 		switch (state) {
 		case Constants.RECONNECTING:
 			LOGGER.info("Intentando reestablecer la conexión hacia el broker JMS");
 			break;
 		case Constants.ACTIVE:
-			LOGGER.info("Se ha establecido la conexión hacia el broker JMS.");
-			exceptionListener.messagingResumed();
+			connectionListener.messagingResumed();
 			break;
 		case Constants.FAILED:
-			LOGGER.error("Se ha interrumpido la conexión hacia el broker JMS. "
-					+ "Se intentará reconectar automáticamente.");
-			exceptionListener.messagingInterrupted();
+			connectionListener.messagingInterrupted();
 			break;
 		default:
 			LOGGER.warn("Cambio de estado registrado: [{}]", state);

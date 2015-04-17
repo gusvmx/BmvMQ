@@ -23,7 +23,5 @@ public class BmvMqExceptionListenerTest {
 	public final void test() {
 		BmvMqExceptionListener listener = new DefaultExceptionListener();
 		listener.onException(new JMSException("Error inducido"));
-		listener.messagingInterrupted();
-		listener.messagingResumed();
 	}
 }
