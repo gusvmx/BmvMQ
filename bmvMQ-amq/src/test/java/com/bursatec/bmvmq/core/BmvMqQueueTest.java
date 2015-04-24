@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
 
@@ -22,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
+import com.bursatec.bmvmq.exception.SendMessageFailureException;
 import com.bursatec.bmvmq.listener.CountdownMessageListener;
 import com.bursatec.bmvmq.listener.MessagePropertyMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
@@ -159,5 +161,25 @@ public class BmvMqQueueTest {
 		Assert.assertTrue(latch.await(TIMEOUT, TIME_UNIT));
 		Assert.assertEquals(numberOfMessagesToReceive, messageListener.getMessagesReceived());
 		Assert.assertEquals(customProperty, messageListener.getCustomProperty());
+	}
+	
+	/**
+	 * @throws InterruptedException */
+	@Test
+	public final void faultWhileSettingProperties() throws InterruptedException {
+		final String destination = "sendAndReceiveWithProperties";
+
+		try {
+			template.send(destination, MESSAGE, new MessagePropertySetter() {
+				
+				@Override
+				public void setProperties(final Message message) throws JMSException {
+					throw new JMSException("Excepcion inducida");
+				}
+			});
+			Assert.fail();
+		} catch (SendMessageFailureException e) {
+			Assert.assertNotNull(e);
+		}
 	}
 }
