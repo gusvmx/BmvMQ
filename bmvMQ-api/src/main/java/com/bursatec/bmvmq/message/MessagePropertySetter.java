@@ -8,6 +8,7 @@
  */
 package com.bursatec.bmvmq.message;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 
 /**
@@ -30,7 +31,9 @@ public interface MessagePropertySetter {
 	 * 
 	 * @param message
 	 *            El mensaje que se personalizará.
+	 * @throws JMSException
+	 *             Si el proveedor JMS falla al asignar propiedades al mensaje.
 	 */
-	void setProperties(Message message);
+	void setProperties(Message message) throws JMSException;
 	
 }
