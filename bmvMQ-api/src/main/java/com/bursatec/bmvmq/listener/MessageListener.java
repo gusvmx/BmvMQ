@@ -11,23 +11,35 @@ package com.bursatec.bmvmq.listener;
 import java.io.Serializable;
 
 /**
+ * Interface para recibir el cuerpo del mensaje JMS. Utilizada para entregar a
+ * la aplicación todos cuerpos de los mensajes recibidos de JMS.
+ * 
  * @author gus
  *
  */
-public interface MessageListener {
+public interface MessageListener extends BmvMqMessageListener {
 
 	/**
-	 * @param message El mensaje recibido por JMS.
+	 * Callback invocado al recibir un mensaje de texto.
+	 * 
+	 * @param message
+	 *            El mensaje recibido por JMS.
 	 */
 	void onMessage(String message);
-	
+
 	/**
-	 * @param message El mensaje recibido por JMS.
+	 * Callback invocado al recibir un mensaje de arreglo de bytes.
+	 * 
+	 * @param message
+	 *            El mensaje recibido por JMS.
 	 */
 	void onMessage(byte[] message);
-	
+
 	/**
-	 * @param message El mensaje recibido por JMS.
+	 * Callback invocado al recibir un mensaje serializable.
+	 * 
+	 * @param message
+	 *            El mensaje recibido por JMS.
 	 */
 	void onMessage(Serializable message);
 }
