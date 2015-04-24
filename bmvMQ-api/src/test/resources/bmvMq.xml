@@ -9,5 +9,4 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<reconnectionInterval>5000</reconnectionInterval>
 	<maxConnections>8</maxConnections>
 	<asyncSend>true</asyncSend>
-	<errorHandlerClassName>com.bursatec.bmvmq.listener.CustomBmvMqErrorHandler</errorHandlerClassName>
 </bmvMq>

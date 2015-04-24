@@ -25,11 +25,9 @@ import org.apache.activemq.pool.PooledConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bursatec.bmvmq.config.BmvMqConfigurationReader;
 import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.listener.ActiveMqExceptionListener;
-import com.bursatec.bmvmq.listener.BmvMqExceptionListener;
 import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
 
@@ -73,8 +71,7 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 		connectionFactory.setUserName(config.getUsername());
 		connectionFactory.setPassword(config.getPassword());
 		connectionFactory.setUseAsyncSend(config.isAsyncSend());
-		connectionFactory.setExceptionListener(getExceptionListenerAdapter());
-		connectionFactory.setTransportListener(null);
+		connectionFactory.setExceptionListener(new ActiveMqExceptionListener());
 		connectionFactory.setClientIDPrefix(config.getClientId());
 		connectionFactory.setConnectionIDPrefix(config.getClientId() + "-conn-");
 		this.pooledConnectionFactory = new PooledConnectionFactory(connectionFactory);
@@ -106,19 +103,8 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 		PooledConnection pooledConnection = (PooledConnection) connection;
 		ActiveMQConnection amqConnection = (ActiveMQConnection) pooledConnection.getConnection();
 		BmvMq config = BmvMqContext.getConfiguration();
-		amqConnection.addTransportListener(getExceptionListenerAdapter());
+		amqConnection.addTransportListener(new ActiveMqExceptionListener());
 		amqConnection.setClientID(config.getClientId());
-	}
-	
-	/**
-	 * @return Un exception listener adapter inicializado con el exception listener configurado. 
-	 */
-	private ActiveMqExceptionListener getExceptionListenerAdapter() {
-		BmvMq config = BmvMqContext.getConfiguration();
-		String exceptionListenerName = config.getErrorHandlerClassName();
-		BmvMqExceptionListener exceptionListener = BmvMqConfigurationReader.initializeExceptionListener(
-				exceptionListenerName);
-		return new ActiveMqExceptionListener(exceptionListener);
 	}
 
 }

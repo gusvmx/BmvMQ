@@ -14,6 +14,8 @@ import org.apache.activemq.transport.TransportListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.config.BmvMqContext;
+
 /**
  * @author gus - Bursatec
  * @version 1.0
@@ -24,13 +26,6 @@ public class ActiveMqExceptionListener extends BmvMqExceptionListenerAdapter imp
 	/***/
 	private static final Logger LOGGER = LoggerFactory.getLogger(ActiveMqExceptionListener.class);
 	
-	/**
-	 * @param exceptionListener El exception listener del cliente donde será notificado.
-	 */
-	public ActiveMqExceptionListener(final BmvMqExceptionListener exceptionListener) {
-		super(exceptionListener);
-	}
-
 	@Override
 	public final void onCommand(final Object command) {
 		LOGGER.info(command.toString());
@@ -43,14 +38,12 @@ public class ActiveMqExceptionListener extends BmvMqExceptionListenerAdapter imp
 
 	@Override
 	public final void transportInterupted() {
-		LOGGER.error("Se ha interrumpido la conexión hacia el broker JMS. Se intentará reconectar automáticamente.");
-		getExceptionListener().messagingInterrupted();
+		BmvMqContext.getConnectionListener().messagingInterrupted();
 	}
 
 	@Override
 	public final void transportResumed() {
-		LOGGER.info("Se ha establecido la conexión hacia el broker JMS.");
-		getExceptionListener().messagingResumed();
+		BmvMqContext.getConnectionListener().messagingResumed();
 	}
 
 	
