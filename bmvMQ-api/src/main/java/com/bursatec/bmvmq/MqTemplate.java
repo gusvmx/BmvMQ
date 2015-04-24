@@ -23,9 +23,16 @@ import com.bursatec.bmvmq.exception.ConsumerCreationFailureException;
 import com.bursatec.bmvmq.exception.MessageCreatorCreationFailureException;
 import com.bursatec.bmvmq.exception.SendMessageFailureException;
 import com.bursatec.bmvmq.factory.JmsComponentFactory;
+import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
+import com.bursatec.bmvmq.listener.RawMessageListener;
+import com.bursatec.bmvmq.message.MessageConstants;
+import com.bursatec.bmvmq.message.MessagePropertySetter;
 
 /**
+ * Interface principal de BmvMQ que ofrece métodos para enviar/recibir y
+ * publicar/suscribir mensajes a queues y tópicos respectivamente.
+ * 
  * @author Gustavo Vargas
  *
  */
@@ -47,6 +54,7 @@ public abstract class MqTemplate {
 	private Map<String, MessageConsumer> topicMessageConsumers = new HashMap<String, MessageConsumer>();
 	
 	/**
+	 * Constructor por default.
 	 * @param componentFactory La fábrica de componentes JMS.
 	 */
 	protected MqTemplate(final JmsComponentFactory componentFactory) {
@@ -56,15 +64,39 @@ public abstract class MqTemplate {
 	/**
 	 * Publica el objeto serializable hacia el topico indicado.
 	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
 	 * 
-	 * @param destination El nombre del tópico donde se publicará el mensaje.
-	 * @param message El objeto serializable que se publicará.
+	 * @param destination
+	 *            El nombre del tópico donde se publicará el mensaje.
+	 * @param message
+	 *            El objeto serializable que se publicará.
 	 */
 	public final void publish(final String destination, final Serializable message) {
+		publish(destination, message, MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Publica el mensaje hacia el tópico indicado.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination
+	 *            El nombre del tópico donde se publicará el mensaje.
+	 * @param message
+	 *            El objeto serializable que se publicará.
+	 * @param messagePropertySetter
+	 *            Asignador de propiedades para el mensaje.
+	 */
+	public final void publish(final String destination, final Serializable message, 
+			final MessagePropertySetter messagePropertySetter) {
 		AbstractMessageCreator messageCreator = getTopicMessageCreator(destination);
 		try {
-			messageCreator.send(message);
+			messageCreator.send(message, MessageConstants.DEFAULT_GROUP_ID, messagePropertySetter);
 		} catch (JMSException e) {
 			String desc = "No ha podido ser posible publicar el mensaje al topico " + destination;
 			LOGGER.error(desc, e);
@@ -74,6 +106,8 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Obtiene el creador de mensajes para el tópico indicado.
+	 * 
 	 * @param destination El nombre del tópico hacia donde se publicaran los mensajes.
 	 * @return Un message creator para el tópico indicado.
 	 */
@@ -95,15 +129,34 @@ public abstract class MqTemplate {
 	/**
 	 * Publica el mensaje de texto hacia el topico indicado.
 	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
 	 * 
 	 * @param destination El nombre del tópico donde se publicará el mensaje.
 	 * @param text El mensaje a publicar.
 	 */
 	public final void publish(final String destination, final String text) {
+		publish(destination, text, MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Publica el mensaje hacia el tópico indicado.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination El nombre del tópico donde se publicará el mensaje.
+	 * @param text El mensaje a publicar.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
+	 */
+	public final void publish(final String destination, final String text, 
+			final MessagePropertySetter messagePropertySetter) {
 		AbstractMessageCreator messageCreator = getTopicMessageCreator(destination);
 		try {
-			messageCreator.send(text);
+			messageCreator.send(text, MessageConstants.DEFAULT_GROUP_ID, messagePropertySetter);
 		} catch (JMSException e) {
 			String desc = "No ha podido ser posible publicar el mensaje al topico " + destination;
 			LOGGER.error(desc, e);
@@ -113,17 +166,39 @@ public abstract class MqTemplate {
 	}
 	
 	/**
-	 * Publica el arreglo de bytes hacia el topico indicado.
+	 * Publica el arreglo de bytes hacia el tópico indicado.
 	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination
+	 *            El nombre del tópico donde se publicará el mensaje.
+	 * @param message
+	 *            El mensaje en su representación de arreglo de bytes a
+	 *            publicar.
+	 */
+	public final void publish(final String destination, final byte[] message) {
+		publish(destination, message, MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Publica el mensaje hacia el tópico indicado.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
 	 * 
 	 * @param destination El nombre del tópico donde se publicará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a publicar.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
 	 */
-	public final void publish(final String destination, final byte[] message) {
+	public final void publish(final String destination, final byte[] message, 
+			final MessagePropertySetter messagePropertySetter) {
 		AbstractMessageCreator messageCreator = getTopicMessageCreator(destination);
 		try {
-			messageCreator.send(message);
+			messageCreator.send(message, MessageConstants.DEFAULT_GROUP_ID, messagePropertySetter);
 		} catch (JMSException e) {
 			String desc = "No ha podido ser posible publicar el mensaje al topico " + destination;
 			LOGGER.error(desc, e);
@@ -141,9 +216,60 @@ public abstract class MqTemplate {
 	 * @param message El objeto serializable que se enviará.
 	 */
 	public final void send(final String destination, final Serializable message) {
+		send(destination, message, MessageConstants.DEFAULT_GROUP_ID, 
+				MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Envía el objeto serializable hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * 
+	 * @param destination El nombre de la cola donde se enviará el mensaje.
+	 * @param message El objeto serializable que se enviará.
+	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
+	 */
+	public final void send(final String destination, final Serializable message, final String messageGroup) {
+		send(destination, message, messageGroup, MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Publica el mensaje hacia la cola indicada.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination El nombre de la cola donde se enviará el mensaje.
+	 * @param message El objeto serializable que se enviará.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
+	 */
+	public final void send(final String destination, final Serializable message, 
+			final MessagePropertySetter messagePropertySetter) {
+		send(destination, message, MessageConstants.DEFAULT_GROUP_ID, messagePropertySetter);
+	}
+	
+	/**
+	 * Publica el mensaje hacia la cola indicada asignando el grupo indicado.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination El nombre de la cola donde se enviará el mensaje.
+	 * @param message El objeto serializable que se enviará.
+	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
+	 */
+	public final void send(final String destination, final Serializable message, final String messageGroup,
+			final MessagePropertySetter messagePropertySetter) {
 		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
 		try {
-			messageCreator.send(message);
+			messageCreator.send(message, messageGroup, messagePropertySetter);
 		} catch (JMSException e) {
 			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
 			LOGGER.error(desc, e);
@@ -153,6 +279,7 @@ public abstract class MqTemplate {
 	}
 	
 	/**
+	 * Crea un creador de mensajes para el queue indicado.
 	 * @param destination El nombre del queue.
 	 * @return Un message creator para el queue indicado.
 	 */
@@ -170,40 +297,77 @@ public abstract class MqTemplate {
 		}
 		return messageCreator;
 	}
-	/**
-	 * Envía el objeto serializable hacia el queue indicado con el id de grupo indicado.
-	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
-	 * 
-	 * @param destination El nombre de la cola donde se enviará el mensaje.
-	 * @param message El objeto serializable que se enviará.
-	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
-	 */
-	public final void send(final String destination, final Serializable message, final String messageGroup) {
-		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
-		try {
-			messageCreator.send(message, messageGroup);
-		} catch (JMSException e) {
-			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
-			LOGGER.error(desc, e);
-			throw new SendMessageFailureException(desc, e);
-		}
-		LOGGER.debug("Serializable object message sent to the queue {} to the message group {}", 
-				destination, messageGroup);
-	}
 	
 	/**
 	 * Envía el mensaje hacia el queue indicado.
 	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination
+	 *            El nombre de la cola donde se enviará el mensaje.
+	 * @param message
+	 *            El mensaje a enviar.
+	 */
+	public final void send(final String destination, final String message) {
+		send(destination, message, MessageConstants.DEFAULT_GROUP_ID, 
+				MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Envía el mensaje hacia el queue indicado con el id de grupo indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination
+	 *            El nombre de la cola donde se enviará el mensaje.
+	 * @param message
+	 *            El mensaje a enviar.
+	 * @param messageGroup
+	 *            Identificador del grupo al que pertenece el mensaje.
+	 */
+	public final void send(final String destination, final String message, final String messageGroup) {
+		send(destination, message, messageGroup, MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Publica el mensaje hacia la cola indicada.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
 	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje a enviar.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
 	 */
-	public final void send(final String destination, final String message) {
+	public final void send(final String destination, final String message,
+			final MessagePropertySetter messagePropertySetter) {
+		send(destination, message, MessageConstants.DEFAULT_GROUP_ID, messagePropertySetter);
+	}
+	
+	/**
+	 * Publica el mensaje hacia la cola indicada asignando el grupo indicado.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination El nombre de la cola donde se enviará el mensaje.
+	 * @param message El mensaje a enviar.
+	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
+	 */
+	public final void send(final String destination, final String message, final String messageGroup,
+			final MessagePropertySetter messagePropertySetter) {
 		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
 		try {
-			messageCreator.send(message);
+			messageCreator.send(message, messageGroup, messagePropertySetter);
 		} catch (JMSException e) {
 			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
 			LOGGER.error(desc, e);
@@ -211,65 +375,84 @@ public abstract class MqTemplate {
 		}
 		LOGGER.debug("String message sent to the queue {}", destination);
 	}
-	/**
-	 * Envía el mensaje hacia el queue indicado con el id de grupo indicado.
-	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
-	 * 
-	 * @param destination El nombre de la cola donde se enviará el mensaje.
-	 * @param message El mensaje a enviar.
-	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
-	 */
-	public final void send(final String destination, final String message, final String messageGroup) {
-		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
-		try {
-			messageCreator.send(message, messageGroup);
-		} catch (JMSException e) {
-			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
-			LOGGER.error(desc, e);
-			throw new SendMessageFailureException(desc, e);
-		}
-		LOGGER.debug("String message sent to the queue {} to the message group {}", destination, messageGroup);
-	}
 	
 	/**
 	 * Envía el arreglo de bytes hacia el queue indicado.
 	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination
+	 *            El nombre de la cola donde se enviará el mensaje.
+	 * @param message
+	 *            El mensaje en su representación de arreglo de bytes a enviar.
+	 */
+	public final void send(final String destination, final byte[] message) {
+		send(destination, message, MessageConstants.DEFAULT_GROUP_ID, 
+				MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Envía el arreglo de bytes hacia el queue indicado con el id de grupo
+	 * indicado.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination
+	 *            El nombre de la cola donde se enviará el mensaje.
+	 * @param message
+	 *            El mensaje en su representación de arreglo de bytes a enviar.
+	 * @param messageGroup
+	 *            Identificador del grupo al que pertenece el mensaje.
+	 */
+	public final void send(final String destination, final byte[] message, final String messageGroup) {
+		send(destination, message, messageGroup, MessagePropertySetter.BLANK_MESSAGE_PROPERTY_SETTER);
+	}
+	
+	/**
+	 * Publica el mensaje hacia la cola indicada.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
 	 * 
 	 * @param destination El nombre de la cola donde se enviará el mensaje.
 	 * @param message El mensaje en su representación de arreglo de bytes a enviar.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
 	 */
-	public final void send(final String destination, final byte[] message) {
+	public final void send(final String destination, final byte[] message, 
+			final MessagePropertySetter messagePropertySetter) {
+		send(destination, message, MessageConstants.DEFAULT_GROUP_ID, messagePropertySetter);
+	}
+	
+	/**
+	 * Publica el mensaje hacia la cola indicada asignando el grupo indicado.
+	 * 
+	 * Adicionalmente ejecuta el callback {@link MessagePropertySetter} para
+	 * personalizar el mensaje JMS a enviar.
+	 * 
+	 * Este método puede bloquear al hilo actual si no existe una conexión
+	 * establecida con el broker JMS.
+	 * 
+	 * @param destination El nombre de la cola donde se enviará el mensaje.
+	 * @param message El mensaje en su representación de arreglo de bytes a enviar.
+	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
+	 * @param messagePropertySetter Asignador de propiedades para el mensaje.
+	 */
+	public final void send(final String destination, final byte[] message, final String messageGroup,
+			final MessagePropertySetter messagePropertySetter) {
 		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
 		try {
-			messageCreator.send(message);
+			messageCreator.send(message, messageGroup, messagePropertySetter);
 		} catch (JMSException e) {
 			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
 			LOGGER.error(desc, e);
 			throw new SendMessageFailureException(desc, e);
 		}
 		LOGGER.debug("Byte array message sent to the queue {}", destination);
-	}
-	/**
-	 * Envía el arreglo de bytes hacia el queue indicado con el id de grupo indicado.
-	 * 
-	 * Este método puede bloquear al hilo actual si no existe una conexión establecida con el broker JMS.
-	 * 
-	 * @param destination El nombre de la cola donde se enviará el mensaje.
-	 * @param message El mensaje en su representación de arreglo de bytes a enviar.
-	 * @param messageGroup Identificador del grupo al que pertenece el mensaje.
-	 */
-	public final void send(final String destination, final byte[] message, final String messageGroup) {
-		AbstractMessageCreator messageCreator = getQueueMessageCreator(destination);
-		try {
-			messageCreator.send(message, messageGroup);
-		} catch (JMSException e) {
-			String desc = "No ha podido ser posible enviar el mensaje al queue " + destination;
-			LOGGER.error(desc, e);
-			throw new SendMessageFailureException(desc, e);
-		}
-		LOGGER.debug("Byte array message sent to the queue {} to the message group {}", destination, messageGroup);
 	}
 	
 	/**
@@ -283,6 +466,30 @@ public abstract class MqTemplate {
 	 */
 	public final void receiveExclusively(final String destinationName,
 			final MessageListener messageListener) {
+		createExclusiveQueueConsumer(destinationName, messageListener);
+	}
+	
+	/**
+	 * Recibe exclusivamente del queue indicado. Por lo tanto, nadie más podrá
+	 * recibir de ese Queue hasta que el actual desista.
+	 * 
+	 * @param destinationName
+	 *            El nombre de la cola de donde se recibirán mensajes.
+	 * @param messageListener
+	 *            El callback donde se entregarán los mensajes en crudo (JMS) recibidos.
+	 */
+	public final void receiveExclusively(final String destinationName,
+			final RawMessageListener messageListener) {
+		createExclusiveQueueConsumer(destinationName, messageListener);
+	}
+	
+	/**
+	 * Crea el receptor de mensajes de forma exclusiva para el queue indicado.
+	 * @param destinationName El nombre de la cola de donde se recibirán mensajes.
+	 * @param messageListener El callback donde se entregarán los mensajes recibidos.
+	 */
+	private void createExclusiveQueueConsumer(final String destinationName, 
+			final BmvMqMessageListener messageListener) {
 		try {
 			MessageConsumer consumer = componentFactory.createExclusiveQueueConsumer(destinationName, messageListener);
 			queueMessageConsumers.put(destinationName, consumer);
@@ -295,6 +502,7 @@ public abstract class MqTemplate {
 				+ "Messages will be delivered to the instance of the class {} with name {}", 
 				destinationName, messageListener.getClass().getName(), messageListener.toString());
 	}
+	
 	/**
 	 * Comienza a recibir mensajes del Queue indicado.
 	 * 
@@ -303,6 +511,25 @@ public abstract class MqTemplate {
 	 */
 	public final void receive(final String destination,
 			final MessageListener messageListener) {
+		createQueueConsumer(destination, messageListener);
+	}
+	
+	/**
+	 * Comienza a recibir mensajes del Queue indicado.
+	 * 
+	 * @param destination El nombre de la cola de donde se recibirán mensajes.
+	 * @param messageListener El callback donde se entregarán los mensajes crudos (JMS) recibidos.
+	 */
+	public final void receive(final String destination,
+			final RawMessageListener messageListener) {
+		createQueueConsumer(destination, messageListener);
+	}
+	
+	/**
+	 * @param destination El nombre de la cola de donde se recibirán mensajes.
+	 * @param messageListener El callback donde se entregarán los mensajes recibidos.
+	 */
+	private void createQueueConsumer(final String destination, final BmvMqMessageListener messageListener) {
 		try {
 			MessageConsumer consumer = componentFactory.createQueueConsumer(destination, messageListener);
 			queueMessageConsumers.put(destination, consumer);
@@ -324,6 +551,25 @@ public abstract class MqTemplate {
 	 */
 	public final void subscribe(final String destination,
 			final MessageListener messageListener) {
+		createTopicConsumer(destination, messageListener);
+	}
+	
+	/**
+	 * Se suscribe al topico indicado y comienza a recibir mensajes.
+	 * 
+	 * @param destination El nombre del tópico al que se realizará la suscripción.
+	 * @param messageListener El callback donde se entregarán los mensajes recibidos en la suscripción.
+	 */
+	public final void subscribe(final String destination,
+			final RawMessageListener messageListener) {
+		createTopicConsumer(destination, messageListener);
+	}
+	
+	/**
+	 * @param destination El nombre del tópico al que se realizará la suscripción.
+	 * @param messageListener El callback donde se entregarán los mensajes recibidos en la suscripción.
+	 */
+	private void createTopicConsumer(final String destination, final BmvMqMessageListener messageListener) {
 		MessageConsumer consumer = null;
 		try {
 			consumer = componentFactory.createTopicConsumer(destination, messageListener);
@@ -377,9 +623,48 @@ public abstract class MqTemplate {
 	 *            El callback donde se entregarán los mensajes recibidos en la
 	 *            suscripción.
 	 */
-	public final void durableSubscription(final String destination,
-			final String durableSubscriptionName,
+	public final void durableSubscription(final String destination, final String durableSubscriptionName,
 			final MessageListener messageListener) {
+		createDurableSubscription(destination, durableSubscriptionName, messageListener);
+	}
+	
+	/**
+	 * Se suscribe al tópico indicado de manera durable. Esto significa que el
+	 * cliente se registra en el broker JMS con un único identificador. Esto
+	 * hace que el broker almacene todos los mensajes que pudieran llegar
+	 * mientras el suscriptor este fuera de línea. En cuanto el suscriptor
+	 * vuelva a estar en línea, todos los mensajes que fluyeron en el tópico les
+	 * serán entregados.
+	 * 
+	 * @param destination
+	 *            El nombre del tópico al que se realizará la suscripción
+	 *            durable.
+	 * @param durableSubscriptionName
+	 *            El nombre de la suscripción durable.
+	 * @param messageListener
+	 *            El callback donde se entregarán los mensajes recibidos en la
+	 *            suscripción.
+	 */
+	public final void durableSubscription(final String destination, final String durableSubscriptionName,
+			final RawMessageListener messageListener) {
+		createDurableSubscription(destination, durableSubscriptionName, messageListener);
+	}
+	
+	/**
+	 * Establece la suscripción durable asociado con el message listener
+	 * indicado.
+	 * 
+	 * @param destination
+	 *            El nombre del tópico al que se realizará la suscripción
+	 *            durable.
+	 * @param durableSubscriptionName
+	 *            El nombre de la suscripción durable.
+	 * @param messageListener
+	 *            El callback donde se entregarán los mensajes recibidos en la
+	 *            suscripción.
+	 */
+	private void createDurableSubscription(final String destination, final String durableSubscriptionName,
+			final BmvMqMessageListener messageListener) {
 		MessageConsumer consumer = null;
 		try {
 			consumer = componentFactory.createDurableSubscription(destination, durableSubscriptionName, 

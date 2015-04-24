@@ -119,8 +119,7 @@ public class MockSession implements Session {
 
 	@Override
 	public final Queue createQueue(final String arg0) throws JMSException {
-		// TODO Auto-generated method stub
-		return null;
+		return new MockQueue();
 	}
 
 	@Override
@@ -154,8 +153,7 @@ public class MockSession implements Session {
 
 	@Override
 	public final Topic createTopic(final String arg0) throws JMSException {
-		// TODO Auto-generated method stub
-		return null;
+		return new MockTopic();
 	}
 
 	@Override
