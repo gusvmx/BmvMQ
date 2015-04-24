@@ -11,6 +11,11 @@ import com.bursatec.bmvmq.listener.DefaultExceptionListener;
 import com.bursatec.bmvmq.listener.connection.ConnStateLogger;
 
 /**
+ * Contenedor del contexto de BmvMQ.
+ * 
+ * Este contenedor almacenará atributos que pueden ser utilizados durante todo
+ * el ciclo de vida de la aplicación.
+ * 
  * @author gus
  *
  */
@@ -20,13 +25,14 @@ public final class BmvMqContext {
 	 * La configuracion de BmvMQ.
 	 */
 	private static BmvMq configuration;
-	/***/
+	/** El callback donde se notificarán los errores ocurridos durante la mensajería. */
 	private static ExceptionListener exceptionListener = new DefaultExceptionListener();
-	/***/
+	/** El callback donde se notificarán los eventos ocurridos relacionados con la conexión al broker. */
 	private static BmvMqConnStateListener connectionListener = new ConnStateLogger();
 
-	/***/
+	/** Constructor privado para evitar que se generen instancias de este contenedor. */
 	private BmvMqContext() { }
+	
 	/**
 	 * @param configuration the configuration to set
 	 */
