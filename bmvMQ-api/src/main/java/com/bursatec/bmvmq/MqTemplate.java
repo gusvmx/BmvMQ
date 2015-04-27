@@ -12,12 +12,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.core.AbstractMessageCreator;
 import com.bursatec.bmvmq.exception.ConsumerCreationFailureException;
 import com.bursatec.bmvmq.exception.MessageCreatorCreationFailureException;
@@ -438,6 +440,16 @@ public abstract class MqTemplate {
 	 */
 	public final void stop() {
 		componentFactory.stop();
+	}
+	
+	/**
+	 * @param exceptionListener El listener donde se notificaran los errores.
+	 */
+	public final void setExceptionListener(final ExceptionListener exceptionListener) {
+		if (exceptionListener == null) {
+			throw new NullPointerException("Se requiere una instancia de BmvMqExceptionListener");
+		}
+		BmvMqContext.setExceptionListener(exceptionListener);
 	}
 
 }

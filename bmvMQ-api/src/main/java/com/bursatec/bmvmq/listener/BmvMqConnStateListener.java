@@ -1,5 +1,5 @@
 /**
- * Bursatec - BMV Apr 16, 2015
+ * Bursatec - BMV Apr 17, 2015
  * This software is the confidential and proprietary information of 
  * Bursatec and Bolsa Mexicana de Valores("Confidential Information").
  *
@@ -8,19 +8,11 @@
  */
 package com.bursatec.bmvmq.listener;
 
-import javax.jms.JMSException;
-
 /**
  * @author gus - Bursatec
  * @version 1.0
  */
-public interface BmvMqExceptionListener {
-
-	/**
-	 * @param jmsException
-	 *            Un problema de mensajería.
-	 */
-	void onException(final JMSException jmsException);
+public interface BmvMqConnStateListener {
 
 	/**
 	 * Callback que indica que la mensajería ha sido interrumpida porque se ha
@@ -37,4 +29,5 @@ public interface BmvMqExceptionListener {
 	 * lo que la mensajería continua en operación.
 	 */
 	void messagingResumed();
+	
 }

@@ -18,11 +18,8 @@ import javax.jms.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bursatec.bmvmq.config.BmvMqConfigurationReader;
-import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.exception.ConnectionFactoryCreationFailureException;
-import com.bursatec.bmvmq.listener.BmvMqExceptionListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.SonicMqExceptionListener;
 
@@ -80,10 +77,7 @@ public class SonicMqComponentFactory extends JmsComponentFactory {
 	protected final void setProprietaryConnectionParams(final Connection connection)
 			throws JMSException {
 		progress.message.jimpl.Connection sonicConnection = (progress.message.jimpl.Connection) connection;
-		String exceptionListenerName = BmvMqContext.getConfiguration().getErrorHandlerClassName();
-		BmvMqExceptionListener exceptionListener = BmvMqConfigurationReader.initializeExceptionListener(
-				exceptionListenerName);
-		SonicMqExceptionListener exceptionListenerAdapter = new SonicMqExceptionListener(exceptionListener);
+		SonicMqExceptionListener exceptionListenerAdapter = new SonicMqExceptionListener();
 		sonicConnection.setExceptionListener(exceptionListenerAdapter);
 		sonicConnection.setConnectionStateChangeListener(exceptionListenerAdapter);
 	}

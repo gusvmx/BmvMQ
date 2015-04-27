@@ -11,6 +11,8 @@ package com.bursatec.bmvmq.listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.config.BmvMqContext;
+
 import progress.message.jclient.ConnectionStateChangeListener;
 import progress.message.jclient.Constants;
 
@@ -20,29 +22,21 @@ import progress.message.jclient.Constants;
  */
 public class SonicMqExceptionListener extends BmvMqExceptionListenerAdapter implements ConnectionStateChangeListener {
 
-	/**
-	 * @param exceptionListener El exception listener del cliente donde será notificado.
-	 */
-	public SonicMqExceptionListener(final BmvMqExceptionListener exceptionListener) {
-		super(exceptionListener);
-	}
-
 	/***/
 	private static final Logger LOGGER = LoggerFactory.getLogger(SonicMqExceptionListener.class);
 	
 	@Override
 	public final void connectionStateChanged(final int state) {
+		BmvMqConnStateListener connectionListener = BmvMqContext.getConnectionListener();
 		switch (state) {
 		case Constants.RECONNECTING:
 			LOGGER.info("Intentando reestablecer la conexión hacia el broker JMS");
 			break;
 		case Constants.ACTIVE:
-			LOGGER.info("Se ha establecido la conexión hacia el broker JMS.");
-			getExceptionListener().messagingResumed();
+			connectionListener.messagingResumed();
 			break;
 		case Constants.FAILED:
-			LOGGER.error("Se ha interrumpido la conexión hacia el broker JMS. "
-					+ "Se intentará reconectar automáticamente.");
+			connectionListener.messagingInterrupted();
 			break;
 		default:
 			LOGGER.warn("Cambio de estado registrado: [{}]", state);
