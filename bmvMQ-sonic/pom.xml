@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.bursatec.jms</groupId>
@@ -9,7 +10,7 @@
 	<artifactId>bmvMQ-sonic</artifactId>
 	<name>bmvMQ-sonic</name>
 	<url>http://maven.apache.org</url>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<test.broker.url>10.100.192.91:4537</test.broker.url>
@@ -19,7 +20,7 @@
 		<test.broker.reconnectionInterval>5000</test.broker.reconnectionInterval>
 		<test.broker.maxConnections>3</test.broker.maxConnections>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>com.bursatec.jms</groupId>
@@ -29,6 +30,10 @@
 		<dependency>
 			<groupId>sonic-client</groupId>
 			<artifactId>sonic-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>sonic-crypto</groupId>
+			<artifactId>sonic-crypto</artifactId>
 		</dependency>
 	</dependencies>
 </project>
