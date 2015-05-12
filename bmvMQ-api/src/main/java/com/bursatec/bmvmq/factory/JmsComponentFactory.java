@@ -208,11 +208,12 @@ public abstract class JmsComponentFactory {
 	/**
 	 * Termina todas las conexiones, sesiones, productores y consumidores.
 	 */
-	public void stop() {
+	public final void stop() {
 		closeSession(consumersSession);
 		closeSession(producersSession);
 		try {
 			connection.stop();
+			connection.close();
 		} catch (JMSException e) {
 			LOGGER.error("Error al terminar la conexión", e);
 		}
