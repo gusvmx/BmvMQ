@@ -65,6 +65,9 @@ public final class BmvMqConfigurationReader {
 			if (config.isAsyncSend() == null) {
 				config.setAsyncSend(true);
 			}
+			if (config.isPersistentDeliveryMode() == null) {
+				config.setPersistentDeliveryMode(true);
+			}
 			return config;
 		} catch (SAXException e) {
 			throw new InvalidBmvMqConfigurationException(e);

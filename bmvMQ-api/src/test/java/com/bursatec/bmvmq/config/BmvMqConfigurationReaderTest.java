@@ -36,6 +36,34 @@ public class BmvMqConfigurationReaderTest {
 		try {
 			BmvMq config = BmvMqConfigurationReader.readConfiguration(ResourceUtils.CLASSPATH_PREFIX + "/bmvMq.xml");
 			Assert.assertNotNull(config);
+			Assert.assertTrue(config.isAsyncSend());
+			Assert.assertTrue(config.isPersistentDeliveryMode());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+	}
+	
+	/***/
+	@Test
+	public final void nonAsyncSend() {
+		try {
+			BmvMq config = BmvMqConfigurationReader.readConfiguration(
+					ResourceUtils.CLASSPATH_PREFIX + "/nonPersistentDelivery.xml");
+			Assert.assertFalse(config.isPersistentDeliveryMode());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+	}
+	
+	/***/
+	@Test
+	public final void nonPersistentDelivery() {
+		try {
+			BmvMq config = BmvMqConfigurationReader.readConfiguration(
+					ResourceUtils.CLASSPATH_PREFIX + "/nonAsyncSend.xml");
+			Assert.assertFalse(config.isAsyncSend());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
