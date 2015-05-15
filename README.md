@@ -1,5 +1,5 @@
 # BmvMQ
-MOM-MQ wrapper that allows doing basic publish/subscribe and send/receive operations avoiding vendor lock-in
+BmvMQ stands for Bolsa Mexicana de Valores(Mexican Stock Exchange) MQ. It is a MOM-MQ wrapper that allows doing basic publish/subscribe and send/receive operations avoiding vendor lock-in
 
 ## Why should I use this MQ wrapper?
 Tha main goal of this project is to provide you with every operation needed to send and receive from a Queue or to publish and receive from a Topic in JMS.
