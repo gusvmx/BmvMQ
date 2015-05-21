@@ -16,6 +16,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.bursatec.bmvmq.config.bind.AcknowledgeModeType;
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.util.ResourceUtils;
 
@@ -33,13 +34,39 @@ public class BmvMqConfigurationReaderTest {
 	 */
 	@Test
 	public final void getConfigFromDefaultLocation() {
+		final int defaultReconnectionInterval = 30000;
+		final int defaultconnectionTimeout = 30000;
 		try {
 			BmvMq config = BmvMqConfigurationReader.readConfiguration(ResourceUtils.CLASSPATH_PREFIX + "/bmvMq.xml");
 			Assert.assertNotNull(config);
+			Assert.assertEquals(AcknowledgeModeType.AUTO_ACKNOWLEDGE, config.getAcknowledgeMode());
+			Assert.assertEquals(defaultReconnectionInterval, config.getReconnectionInterval().intValue());
+			Assert.assertEquals(defaultconnectionTimeout, config.getConnectionTimeout().intValue());
+			Assert.assertTrue(config.isAsyncSend().booleanValue());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
 		}
+	}
+	
+	@Test
+	public final void readXmlFullyConfigured() {
+		BmvMq config = null;
+		try {
+			config = BmvMqConfigurationReader.readConfiguration(
+					ResourceUtils.CLASSPATH_PREFIX + "/fullyConfigured.xml");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		Assert.assertEquals("clientId", config.getClientId());
+		Assert.assertEquals("url", config.getUrl());
+		Assert.assertEquals("username", config.getUsername());
+		Assert.assertEquals("password", config.getPassword());
+		Assert.assertEquals(AcknowledgeModeType.SESSION_TRANSACTED, config.getAcknowledgeMode());
+		Assert.assertEquals(1, config.getReconnectionInterval().intValue());
+		Assert.assertEquals(1, config.getConnectionTimeout().intValue());
+		Assert.assertFalse(config.isAsyncSend());
 	}
 	
 	/**

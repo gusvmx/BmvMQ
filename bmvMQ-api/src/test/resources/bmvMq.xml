@@ -5,8 +5,4 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<clientId>bmvmq-junit</clientId>
 	<username>admin</username>
 	<password>admin</password>
-	<acknowledgeMode>AUTO_ACKNOWLEDGE</acknowledgeMode>
-	<reconnectionInterval>5000</reconnectionInterval>
-	<maxConnections>8</maxConnections>
-	<asyncSend>true</asyncSend>
 </bmvMq>

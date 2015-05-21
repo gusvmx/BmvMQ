@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bmvMq xsi:noNamespaceSchemaLocation="bmvMq.xsd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<url>url</url>
+	<clientId>clientId</clientId>
+	<username>username</username>
+	<password>password</password>
+	<acknowledgeMode>SESSION_TRANSACTED</acknowledgeMode>
+	<reconnectionInterval>1</reconnectionInterval>
+	<connectionTimeout>1</connectionTimeout>
+	<asyncSend>false</asyncSend>
+</bmvMq>

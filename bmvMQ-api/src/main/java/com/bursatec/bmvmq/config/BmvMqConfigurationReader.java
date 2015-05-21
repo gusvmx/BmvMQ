@@ -62,9 +62,6 @@ public final class BmvMqConfigurationReader {
 			unmarshaller.setSchema(schema);
 			
 			BmvMq config = (BmvMq) unmarshaller.unmarshal(configFile);
-			if (config.isAsyncSend() == null) {
-				config.setAsyncSend(true);
-			}
 			return config;
 		} catch (SAXException e) {
 			throw new InvalidBmvMqConfigurationException(e);
