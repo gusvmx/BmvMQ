@@ -9,6 +9,7 @@
 package com.bursatec.bmvmq.factory;
 
 import java.io.FileNotFoundException;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -49,7 +50,20 @@ public class SonicMqComponentFactory extends JmsComponentFactory {
 			connectionFactory.setConnectionURLs(config.getUrl());
 			connectionFactory.setClientID(config.getClientId());
 			connectionFactory.setFaultTolerant(true);
-			connectionFactory.setFaultTolerantReconnectTimeout(config.getReconnectionInterval());
+			int connectionTimeout = (int) TimeUnit.MILLISECONDS.toSeconds(config.getConnectionTimeout());
+			int reconnectionInterval = (int) TimeUnit.MILLISECONDS.toSeconds(config.getReconnectionInterval());
+			if (connectionTimeout > 0) {
+				connectionFactory.setFaultTolerantReconnectTimeout(connectionTimeout);
+			} else {
+				LOGGER.warn("El timeout configurado para la conexión es invalido, debe ser mayor a 1 segundo. "
+						+ "Se configura conexión con parámetros por default.");
+			}
+			if (reconnectionInterval > 0) {
+				connectionFactory.setReconnectInterval(reconnectionInterval);
+			} else {
+				LOGGER.warn("El intervalo de reconección para la conexión es inválido, debe ser mayor a 1 segundo. "
+						+ "Se configura conexión con parámetros por default.");
+			}
 			connectionFactory.setDefaultUser(config.getUsername());
 			connectionFactory.setDefaultPassword(config.getPassword());
 		} catch (JMSException e) {
