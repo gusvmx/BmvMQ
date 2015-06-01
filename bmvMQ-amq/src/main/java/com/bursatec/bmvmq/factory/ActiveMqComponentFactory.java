@@ -28,11 +28,17 @@ import org.slf4j.LoggerFactory;
 import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.listener.ActiveMqExceptionListener;
-import com.bursatec.bmvmq.listener.MessageListener;
+import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
 import com.bursatec.bmvmq.util.UrlUtility;
 
 /**
+ * Fábrica de componentes JMS para ActiveMQ.
+ * 
+ * Responsable de configurar una fábrica de conexiones utilizando el protocolo
+ * failover de ActiveMQ para poder reestablecer conexiones automáticamente con
+ * el broker JMS en caso de caída de este último.
+ * 
  * @author gus - Bursatec
  * @version 1.0
  */
@@ -47,6 +53,7 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 	private static final String FAILOVER_PROTOCOL = "failover:";
 	
 	/**
+	 * Constructor por default.
 	 * @param configFileLocation La ubicación del archivo de configuración.
 	 * @throws FileNotFoundException En caso de no encontrar el archivo de configuración.
 	 */
@@ -77,10 +84,10 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 	
 	@Override
 	public final MessageConsumer createExclusiveQueueConsumer(
-			final String destination, final MessageListener messageListener) throws JMSException {
+			final String destination, final BmvMqMessageListener messageListener) throws JMSException {
 		Session consumersSession = getConsumersSession();
 		Destination queue = new ActiveMQQueue(destination + "?consumer.exclusive=true");
-		MessageListenerAdapter adapter = new MessageListenerAdapter(consumersSession, messageListener);
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
 		MessageConsumer consumer = consumersSession.createConsumer(queue);
 		consumer.setMessageListener(adapter);
 		return consumer;
