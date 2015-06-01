@@ -14,6 +14,7 @@
 				<xs:element name="maxConnections" type="xs:int" minOccurs="0" maxOccurs="1" default="8"/>
 				<xs:element name="asyncSend" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
 				<xs:element name="persistentDeliveryMode" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
+				<xs:element name="useCompression" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false"/>
 			</xs:all>
 		</xs:complexType>
 	</xs:element>

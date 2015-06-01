@@ -9,6 +9,8 @@
 package com.bursatec.bmvmq.factory;
 
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -28,6 +30,7 @@ import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.listener.ActiveMqExceptionListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
+import com.bursatec.bmvmq.util.UrlUtility;
 
 /**
  * @author gus - Bursatec
@@ -42,8 +45,6 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 	private ActiveMQConnectionFactory connectionFactory;
 	/***/
 	private static final String FAILOVER_PROTOCOL = "failover:";
-	/***/
-	private static final String RECONNECTION_INTERVAL_PARAM = "maxReconnectDelay=";
 	
 	/**
 	 * @param configFileLocation La ubicación del archivo de configuración.
@@ -57,8 +58,11 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 	@Override
 	protected final ConnectionFactory getConnectionFactory(final BmvMq config) {
 		connectionFactory = new ActiveMQConnectionFactory();
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("maxReconnectDelay", config.getReconnectionInterval().toString());
+		params.put("jms.useCompression", config.isUseCompression().toString());
 		connectionFactory.setBrokerURL(FAILOVER_PROTOCOL + "(" + config.getUrl() + ")?" 
-				+ RECONNECTION_INTERVAL_PARAM + config.getReconnectionInterval());
+				+ UrlUtility.encodeParameters(params));
 		connectionFactory.setUserName(config.getUsername());
 		connectionFactory.setPassword(config.getPassword());
 		connectionFactory.setUseAsyncSend(config.isAsyncSend());
