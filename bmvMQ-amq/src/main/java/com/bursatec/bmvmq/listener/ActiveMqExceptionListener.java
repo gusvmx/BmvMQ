@@ -28,7 +28,7 @@ public class ActiveMqExceptionListener extends BmvMqExceptionListenerAdapter imp
 	
 	@Override
 	public final void onCommand(final Object command) {
-		LOGGER.info(command.toString());
+		LOGGER.debug(command.toString());
 	}
 
 	@Override
