@@ -23,50 +23,45 @@ import com.bursatec.bmvmq.config.bind.AcknowledgeModeType;
 import com.bursatec.bmvmq.transaction.TransactionSynchronizationManager;
 
 /**
+ * Receptor de mendajes JMS que funge como adaptador para entregar los mensajes
+ * al cliente de BmvMQ tomando como responsabilidad los acuses de recibo de los
+ * mensajes. Esto permite que los clientes BmvMQ se olviden de la
+ * responsabilidad de acusar los mensajes.
+ * 
  * @author gus - Bursatec
  * @version 1.0
  */
-public class MessageListenerAdapter implements javax.jms.MessageListener {
+public abstract class MessageListenerAdapter implements javax.jms.MessageListener {
 
 	/***/
 	private static final Logger LOGGER = LoggerFactory.getLogger(MessageListenerAdapter.class);
 	/** La sesion JMS para recepción de mensajes. */
 	private Session session;
-	/** El message listener de la aplicación cliente. */
-	private MessageListener messageListener;
 	/** El tipo de acuse de recibido. */
 	private AcknowledgeModeType acknowledgeModeType;
 
 	/**
+	 * Constructor por default.
 	 * @param session La sesión JMS para recepción de mensajes.
-	 * @param messageListener El callback donde se entregarán los mensajes.
 	 */
-	public MessageListenerAdapter(final Session session,
-			final MessageListener messageListener) {
+	protected MessageListenerAdapter(final Session session) {
 		this.session = session;
-		this.messageListener = messageListener;
 		this.acknowledgeModeType = BmvMqContext.getConfiguration().getAcknowledgeMode();
 	}
-
+	
 	@Override
 	public final void onMessage(final Message message) {
 		TransactionSynchronizationManager.bindSession(session);
 		try {
 			if (message instanceof TextMessage) {
-				TextMessage textMessage = (TextMessage) message;
-				messageListener.onMessage(textMessage.getText());
+				deliver((TextMessage) message);
 			} else if (message instanceof BytesMessage) {
-				BytesMessage bytesMessage = (BytesMessage) message;
-				byte[] content = new byte[(int) bytesMessage.getBodyLength()];
-				bytesMessage.readBytes(content);
-				messageListener.onMessage(content);
+				deliver((BytesMessage) message);
 			} else if (message instanceof ObjectMessage) {
-				ObjectMessage objectMessage = (ObjectMessage) message;
-				messageListener.onMessage(objectMessage.getObject());
+				deliver((ObjectMessage) message);
 			} else {
 				LOGGER.warn("Se recibió un mensaje no soportado por BmvMQ: " + message.getJMSType());
 			}
-
 			acknowledgeMessage(message);
 		} catch (JMSException e) {
 			LOGGER.error("Ocurrió un error al recuperar el mensaje recibido.", e);
@@ -78,6 +73,37 @@ public class MessageListenerAdapter implements javax.jms.MessageListener {
 			TransactionSynchronizationManager.unbindSession();
 		}
 	}
+
+	/**
+	 * Entrega el mensaje serializable recibido al MessageListener del cliente.
+	 * 
+	 * @param objectMessage
+	 *            El mensaje a entregar al cliente.
+	 * @throws JMSException
+	 *             Si el proveedor JMS falla al obtener el mensaje.
+	 */
+	protected abstract void deliver(final ObjectMessage objectMessage) throws JMSException;
+
+	/**
+	 * Entrega el mensaje en forma de arreglo de bytes recibido al
+	 * MessageListener del cliente.
+	 * 
+	 * @param bytesMessage
+	 *            El mensaje a entregar al cliente.
+	 * @throws JMSException
+	 *             Si el proveedor JMS falla al obtener el mensaje.
+	 */
+	protected abstract void deliver(final BytesMessage bytesMessage) throws JMSException;
+
+	/**
+	 * Entrega el mensaje de texto recibido al MessageListener del cliente.
+	 * 
+	 * @param textMessage
+	 *            El mensaje a entregar al cliente.
+	 * @throws JMSException
+	 *             Si el proveedor JMS falla al obtener el mensaje.
+	 */
+	protected abstract void deliver(final TextMessage textMessage) throws JMSException;
 
 	/**
 	 * Deshace la transacción.
@@ -93,8 +119,12 @@ public class MessageListenerAdapter implements javax.jms.MessageListener {
 	}
 
 	/**
-	 * @param message El mensaje a acusar de recibido.
-	 * @throws JMSException Si ocurre algun error interno durante el acuse.
+	 * Acusa el mensaje de recibido dependiendo del tipo de acuse.
+	 * 
+	 * @param message
+	 *            El mensaje a acusar de recibido.
+	 * @throws JMSException
+	 *             Si ocurre algun error interno durante el acuse.
 	 */
 	private void acknowledgeMessage(final Message message) throws JMSException {
 		switch (acknowledgeModeType) {

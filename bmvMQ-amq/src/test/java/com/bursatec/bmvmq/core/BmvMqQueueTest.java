@@ -13,15 +13,22 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.Message;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
+import com.bursatec.bmvmq.exception.SendMessageFailureException;
 import com.bursatec.bmvmq.listener.CountdownMessageListener;
+import com.bursatec.bmvmq.listener.MessagePropertyMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
+import com.bursatec.bmvmq.message.MessagePropertySetter;
 
 /**
  * @author gus
@@ -39,6 +46,8 @@ public class BmvMqQueueTest {
 	private MqTemplate template;
 	/***/
 	private static final int SUBSCRIPTION_TIME = 500;
+	/***/
+	public static final String CUSTOM_PROPERTY_NAME = "customPropertyName";
 
 	/**
 	 * @throws FileNotFoundException Si no encuentra el archivo de configuración.
@@ -126,5 +135,51 @@ public class BmvMqQueueTest {
 				receiver1.getMessagesReceived());
 		Assert.assertNotEquals(numberOfMessagesToSendPerGroup * groups.length, 
 				receiver2.getMessagesReceived());
+	}
+	
+	/**
+	 * @throws InterruptedException */
+	@Test
+	public final void sendAndReceiveWithProperties() throws InterruptedException {
+		final int numberOfMessagesToReceive = 1;
+		final String destination = "sendAndReceiveWithProperties";
+		final String customProperty = String.valueOf(Math.random());
+		CountDownLatch latch = new CountDownLatch(numberOfMessagesToReceive);
+		MessagePropertyMessageListener messageListener = new MessagePropertyMessageListener(latch);
+		template.receive(destination, messageListener);
+		
+		Thread.sleep(SUBSCRIPTION_TIME);
+		
+		template.send(destination, MESSAGE, new MessagePropertySetter() {
+			
+			@Override
+			public void setProperties(final Message message) throws JMSException {
+				message.setStringProperty(CUSTOM_PROPERTY_NAME, customProperty);
+			}
+		});
+
+		Assert.assertTrue(latch.await(TIMEOUT, TIME_UNIT));
+		Assert.assertEquals(numberOfMessagesToReceive, messageListener.getMessagesReceived());
+		Assert.assertEquals(customProperty, messageListener.getCustomProperty());
+	}
+	
+	/**
+	 * @throws InterruptedException */
+	@Test
+	public final void faultWhileSettingProperties() throws InterruptedException {
+		final String destination = "sendAndReceiveWithProperties";
+
+		try {
+			template.send(destination, MESSAGE, new MessagePropertySetter() {
+				
+				@Override
+				public void setProperties(final Message message) throws JMSException {
+					throw new JMSException("Excepcion inducida");
+				}
+			});
+			Assert.fail();
+		} catch (SendMessageFailureException e) {
+			Assert.assertNotNull(e);
+		}
 	}
 }

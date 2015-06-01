@@ -32,10 +32,17 @@ import com.bursatec.bmvmq.core.QueueMessageCreator;
 import com.bursatec.bmvmq.core.TopicMessageCreator;
 import com.bursatec.bmvmq.exception.ConnectionCreationFailureException;
 import com.bursatec.bmvmq.exception.SessionCreationFailureException;
+import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
+import com.bursatec.bmvmq.listener.RawMessageListener;
+import com.bursatec.bmvmq.listener.message.BodyMessageListenerAdapter;
+import com.bursatec.bmvmq.listener.message.RawMessageListenerAdapter;
 
 /**
+ * Fábrica de componentes JMS responsable de crear cada uno de los elementos
+ * necesarios para establecer una comunicación con un broker JMS.
+ * 
  * @author gus
  *
  */
@@ -43,16 +50,20 @@ public abstract class JmsComponentFactory {
 
 	/***/
 	private static final Logger LOGGER = LoggerFactory.getLogger(JmsComponentFactory.class);
-	/***/
+	/** La conexión hacia el broker JMS. */
 	private Connection connection;
-	/***/
+	/** La sesión utilizada para los productores de mensajes. */
 	private Session producersSession;
-	/***/
+	/** La sesión utilizada para la recepción de mensajes. */
 	private Session consumersSession;
 	
 	/**
-	 * @param configFileLocation La ubicación del archivo de configuración.
-	 * @throws FileNotFoundException En caso de no encontrar el archivo de configuración.
+	 * Constructor por default.
+	 * 
+	 * @param configFileLocation
+	 *            La ubicación del archivo de configuración.
+	 * @throws FileNotFoundException
+	 *             En caso de no encontrar el archivo de configuración.
 	 */
 	public JmsComponentFactory(final String configFileLocation) throws FileNotFoundException {
 		BmvMq config = BmvMqConfigurationReader.readConfiguration(configFileLocation);
@@ -72,7 +83,10 @@ public abstract class JmsComponentFactory {
 	}
 	
 	/**
-	 * @param acknowledgeModeType El tipo de acuse configurado.
+	 * Obtiene el valor en JMS del tipo de acuse de recibido.
+	 * 
+	 * @param acknowledgeModeType
+	 *            El tipo de acuse configurado.
 	 * @return El valor del tipo de acuse.
 	 */
 	private int getAckModeValue(final AcknowledgeModeType acknowledgeModeType) {
@@ -92,12 +106,19 @@ public abstract class JmsComponentFactory {
 	}
 	
 	/**
-	 * @param config La configuración de BmvMQ.
+	 * Obtiene la fábrica de conexiones hacia el broker JMS dependiendo del
+	 * proveedor. Esta fábrica debe ser capaz de generar conexiones tolerantes a
+	 * fallos, configurandola de acuerdo a la documentación de cada proveedor
+	 * JMS.
+	 * 
+	 * @param config
+	 *            La configuración de BmvMQ.
 	 * @return La fábrica de conexiones del proveedor JMS.
 	 */
 	protected abstract ConnectionFactory getConnectionFactory(final BmvMq config);
 	
 	/**
+	 * Obtiene una conexión inicializada de la fábrica de conexiones.
 	 * @param connectionFactory La fábrica de conexiones.
 	 * @param config La configuración de BmvMQ.
 	 * @return Una conexión lista para usarse.
@@ -117,15 +138,24 @@ public abstract class JmsComponentFactory {
 	}
 	
 	/**
-	 * @param connection La conexión hacia el broker JMS.
-	 * @throws JMSException Si ocurre algún error durante la asignación de los parámetros.
+	 * Asigna parámetros propietarios del proveedor a la conexión indicada.
+	 * 
+	 * @param connection
+	 *            La conexión hacia el broker JMS.
+	 * @throws JMSException
+	 *             Si ocurre algún error durante la asignación de los
+	 *             parámetros.
 	 */
 	protected abstract void setProprietaryConnectionParams(final Connection connection) throws JMSException;
 	
 	/**
-	 * @param destination El nombre del queue donde se enviará el mensaje.
+	 * Obtiene un creador de mensajes para la cola indicada.
+	 * 
+	 * @param destination
+	 *            El nombre del queue donde se enviará el mensaje.
 	 * @return Un message creator para el tópico indicado.
-	 * @throws JMSException Si ocurre un error interno al crear el publicador.
+	 * @throws JMSException
+	 *             Si ocurre un error interno al crear el publicador.
 	 */
 	public final AbstractMessageCreator createQueueMessageCreator(final String destination) throws JMSException {
 		Destination queue = producersSession.createQueue(destination);
@@ -136,9 +166,13 @@ public abstract class JmsComponentFactory {
 	}
 	
 	/**
-	 * @param destination El nombre del tópico donde se enviará el mensaje.
+	 * Obtiene un creador de mensajes para el topico indicado.
+	 * 
+	 * @param destination
+	 *            El nombre del tópico donde se enviará el mensaje.
 	 * @return Un messageCreator para el tópico indicado.
-	 * @throws JMSException Si ocurre un error interno al crear el publicador.
+	 * @throws JMSException
+	 *             Si ocurre un error interno al crear el publicador.
 	 */
 	public final AbstractMessageCreator createTopicMessageCreator(final String destination) throws JMSException {
 		Destination topic = producersSession.createTopic(destination);
@@ -149,15 +183,21 @@ public abstract class JmsComponentFactory {
 	}
 	
 	/**
-	 * @param destination El nombre del queue donde se enviará el mensaje.
-	 * @param messageListener El listener donde se entregarán los mensajes.
-	 * @return El adaptador que entregará el mensaje al messageListener proporcionado.
-	 * @throws JMSException Si ocurre un error al crear el consumidor del queue.
+	 * Crea un consumidor de mensajes para la cola indicada.
+	 * 
+	 * @param destination
+	 *            El nombre del queue donde se enviará el mensaje.
+	 * @param messageListener
+	 *            El listener donde se entregarán los mensajes.
+	 * @return El adaptador que entregará el mensaje al messageListener
+	 *         proporcionado.
+	 * @throws JMSException
+	 *             Si ocurre un error al crear el consumidor del queue.
 	 */
 	public final MessageConsumer createQueueConsumer(final String destination,
-			final MessageListener messageListener) throws JMSException {
+			final BmvMqMessageListener messageListener) throws JMSException {
 		Destination queue = consumersSession.createQueue(destination);
-		MessageListenerAdapter adapter = new MessageListenerAdapter(consumersSession, messageListener);
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
 		MessageConsumer consumer = consumersSession.createConsumer(queue);
 		consumer.setMessageListener(adapter);
 		LOGGER.info("Consumidor creado hacia la cola {}", destination);
@@ -165,41 +205,78 @@ public abstract class JmsComponentFactory {
 	}
 	
 	/**
-	 * @param destination El nombre del queue donde se enviará el mensaje.
-	 * @param messageListener El listener donde se entregarán los mensajes.
-	 * @return El adaptador que entregará el mensaje al messageListener proporcionado.
-	 * @throws JMSException Si ocurre un error al crear el consumidor del queue.
+	 * Crea un adaptador de recepción de mensajes de acuerdo al MessageListener
+	 * indicado por el cliente BmvMQ.
+	 * 
+	 * @param messageListener
+	 *            El message listener donde se entregaran los mensajes.
+	 * @return Un MessageListenerAdapter que entrega únicamente el cuerpo del
+	 *         mensaje u otro que entrega el mensaje JMS dependiendo del tipo de
+	 *         BmvMqMessageListener recibido.
 	 */
-	public abstract MessageConsumer createExclusiveQueueConsumer(String destination, MessageListener messageListener) 
-			throws JMSException;
+	protected final MessageListenerAdapter createMessageListenerAdapter(final BmvMqMessageListener messageListener) {
+		if (messageListener instanceof MessageListener) {
+			return new BodyMessageListenerAdapter(consumersSession, (MessageListener) messageListener);
+		} else {
+			return new RawMessageListenerAdapter(consumersSession, (RawMessageListener) messageListener);
+		}
+	}
 	
 	/**
-	 * @param destination El nombre del tópico donde se publicará el mensaje.
-	 * @param messageListener El listener donde se entregarán los mensajes.
-	 * @return El adaptador que entregará el mensaje al messageListener proporcionado.
-	 * @throws JMSException Si ocurre un error al crear el consumidor del tópico.
+	 * Crea un consumidor exclusivo de mensajes para la cola indicada.
+	 * 
+	 * @param destination
+	 *            El nombre del queue donde se enviará el mensaje.
+	 * @param messageListener
+	 *            El listener donde se entregarán los mensajes.
+	 * @return El adaptador que entregará el mensaje al messageListener
+	 *         proporcionado.
+	 * @throws JMSException
+	 *             Si ocurre un error al crear el consumidor del queue.
+	 */
+	public abstract MessageConsumer createExclusiveQueueConsumer(String destination, 
+			BmvMqMessageListener messageListener) throws JMSException;
+	
+	/**
+	 * Crea un consumidor de mensajes para el tópico indicado.
+	 * 
+	 * @param destination
+	 *            El nombre del tópico donde se publicará el mensaje.
+	 * @param messageListener
+	 *            El listener donde se entregarán los mensajes.
+	 * @return El adaptador que entregará el mensaje al messageListener
+	 *         proporcionado.
+	 * @throws JMSException
+	 *             Si ocurre un error al crear el consumidor del tópico.
 	 */
 	public final MessageConsumer createTopicConsumer(final String destination,
-			final MessageListener messageListener) throws JMSException {
+			final BmvMqMessageListener messageListener) throws JMSException {
 		Destination topic = consumersSession.createTopic(destination);
-		MessageListenerAdapter adapter = new MessageListenerAdapter(consumersSession, messageListener);
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
 		MessageConsumer consumer = consumersSession.createConsumer(topic);
 		consumer.setMessageListener(adapter);
 		return consumer;
 	}
 	
 	/**
-	 * @param destination El nombre del tópico donde se publicará el mensaje.
-	 * @param durableSubscriptionName El nombre de la suscripción durable.
-	 * @param messageListener El listener donde se entregarán los mensajes.
-	 * @return El adaptador que entregará el mensaje al messageListener proporcionado.
-	 * @throws JMSException Si ocurre un error al crear el consumidor del tópico. 
+	 * Crea un consumidor de mensajes durable para el tópico indicado.
+	 * 
+	 * @param destination
+	 *            El nombre del tópico donde se publicará el mensaje.
+	 * @param durableSubscriptionName
+	 *            El nombre de la suscripción durable.
+	 * @param messageListener
+	 *            El listener donde se entregarán los mensajes.
+	 * @return El adaptador que entregará el mensaje al messageListener
+	 *         proporcionado.
+	 * @throws JMSException
+	 *             Si ocurre un error al crear el consumidor del tópico.
 	 */
 	public final MessageConsumer createDurableSubscription(
 			final String destination, final String durableSubscriptionName,
-			final MessageListener messageListener) throws JMSException {
+			final BmvMqMessageListener messageListener) throws JMSException {
 		Topic topic = consumersSession.createTopic(destination);
-		MessageListenerAdapter adapter = new MessageListenerAdapter(consumersSession, messageListener);
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
 		MessageConsumer consumer = consumersSession.createDurableSubscriber(topic, durableSubscriptionName);
 		consumer.setMessageListener(adapter);
 		return consumer;
@@ -219,6 +296,7 @@ public abstract class JmsComponentFactory {
 	}
 	
 	/**
+	 * Cierra la sesión indicada.
 	 * @param session La sesion a cerrar.
 	 */
 	private void closeSession(final Session session) {
@@ -240,7 +318,7 @@ public abstract class JmsComponentFactory {
 	/**
 	 * @return the consumersSession
 	 */
-	public final Session getConsumersSession() {
+	protected final Session getConsumersSession() {
 		return consumersSession;
 	}
 	

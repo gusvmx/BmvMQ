@@ -21,10 +21,15 @@ import org.slf4j.LoggerFactory;
 
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.exception.ConnectionFactoryCreationFailureException;
-import com.bursatec.bmvmq.listener.MessageListener;
+import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.SonicMqExceptionListener;
 
 /**
+ * Fábrica de componentes JMS para SonicMQ.
+ * 
+ * Responsable de configurar una fábrica de conexiones utilizando el protocolo
+ * faultTolerant de SonicMQ para poder reestablecer conexiones automáticamente con
+ * el broker JMS en caso de caída de este último.
  * @author gus - Bursatec
  * @version 1.0
  */
@@ -81,7 +86,7 @@ public class SonicMqComponentFactory extends JmsComponentFactory {
 
 	@Override
 	public final MessageConsumer createExclusiveQueueConsumer(final String destination,
-			final MessageListener messageListener) throws JMSException {
+			final BmvMqMessageListener messageListener) throws JMSException {
 		LOGGER.warn("Esta implementación de BmvMQ no tiene implementada la funcionalidad de recepción exclusiva. "
 				+ "Por lo tanto se establecerá una conexión de recepción estandar.");
 		return createQueueConsumer(destination, messageListener);
