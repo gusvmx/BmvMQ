@@ -9,6 +9,8 @@
 package com.bursatec.bmvmq.core;
 
 import java.io.FileNotFoundException;
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +63,54 @@ public class BmvMqQueueTest {
 	@After
 	public final void stop() {
 		this.template.stop();
+	}
+	
+	/**
+	 * Flujo de mensajería básica para verificar el flujo.
+	 * 
+	 * @throws InterruptedException
+	 *             Si alguien interrumpe a este hilo mientras se espera por la
+	 *             recepcion de mensajes.
+	 */
+	@Test
+	public final void messaging() throws InterruptedException {
+		final StringBuilder result = new StringBuilder();
+		final byte[] byteArrayReceived = new byte[MESSAGE.getBytes().length];
+		final HashMap<String, String> receivedMap = new HashMap<String, String>();
+		final String destination = "messaging";
+		final CountDownLatch latch = new CountDownLatch(3);
+		
+		template.receive(destination, new MessageListener() {
+			@Override
+			public void onMessage(final Serializable message) {
+				@SuppressWarnings("unchecked")
+				HashMap<String, String> map = (HashMap<String, String>) message;
+				receivedMap.putAll(map);
+				latch.countDown();
+			}
+			@Override
+			public void onMessage(final byte[] message) {
+				System.arraycopy(message, 0, byteArrayReceived, 0, message.length);
+				latch.countDown();
+			}
+			@Override
+			public void onMessage(final String message) {
+				result.append(message);
+				latch.countDown();
+			}
+		});
+		
+		template.send(destination, MESSAGE);
+		template.send(destination, MESSAGE.getBytes());
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(MESSAGE, MESSAGE);
+		template.send(destination, map);
+		
+		Assert.assertTrue(latch.await(TIMEOUT, TIME_UNIT));
+		//Valida que el contenido de los mensajes sea el mismo
+		Assert.assertEquals(MESSAGE, result.toString());
+		Assert.assertTrue(Arrays.equals(MESSAGE.getBytes(), byteArrayReceived));
+		Assert.assertEquals(MESSAGE, receivedMap.get(MESSAGE));
 	}
 	
 	/**

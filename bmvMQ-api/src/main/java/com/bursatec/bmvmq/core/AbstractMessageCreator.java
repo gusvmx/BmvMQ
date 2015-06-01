@@ -94,7 +94,7 @@ public abstract class AbstractMessageCreator {
 	public final void send(final String text, final String messageGroupId, 
 			final MessagePropertySetter messagePropertySetter) throws JMSException {
 		MessageProducer producer = getProducer();
-		Message message = session.createTextMessage();
+		Message message = session.createTextMessage(text);
 		sendMessage(producer, message, messageGroupId, messagePropertySetter);
 	}
 
