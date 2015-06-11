@@ -9,9 +9,18 @@
 package com.bursatec.bmvmq.core;
 
 import java.io.FileNotFoundException;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -54,9 +63,16 @@ public class BmvMqTopicTest {
 	}
 	
 	/**
-	 * @throws InterruptedException */
+	 * @throws InterruptedException 
+	 * @throws MalformedObjectNameException 
+	 * @throws ReflectionException 
+	 * @throws MBeanException 
+	 * @throws InstanceNotFoundException 
+	 * @throws AttributeNotFoundException */
 	@Test
-	public final void publishAndSubscribe() throws InterruptedException {
+	public final void publishAndSubscribe() throws InterruptedException, 
+	MalformedObjectNameException, AttributeNotFoundException, InstanceNotFoundException, 
+	MBeanException, ReflectionException {
 		final int numberOfMessagesToReceive = 3;
 		final int numberOfSubsribers = 2;
 		final String destination = "publishAndSubscribe";
@@ -76,6 +92,10 @@ public class BmvMqTopicTest {
 		Assert.assertTrue(latch.await(TIMEOUT, TIME_UNIT));
 		Assert.assertEquals(numberOfMessagesToReceive, receiver1.getMessagesReceived());
 		Assert.assertEquals(numberOfMessagesToReceive, receiver2.getMessagesReceived());
+		
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName objectName = new ObjectName(MBeanFactory.buildTopicName(destination));
+		Assert.assertEquals(new Long(numberOfMessagesToReceive), mbs.getAttribute(objectName, "MessagesReceived"));
 	}
 	
 }
