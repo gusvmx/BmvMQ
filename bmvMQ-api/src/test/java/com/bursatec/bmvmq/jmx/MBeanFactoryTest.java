@@ -84,11 +84,15 @@ public class MBeanFactoryTest {
 	@Test
 	public final void testUnregisterSubdomains() throws MalformedObjectNameException {
 		MBeanFactory.createMbean(new JmsProducerStats(""), MBeanFactory.buildReceiverName("gus"));
+		MBeanFactory.createMbean(new JmsProducerStats(""), MBeanFactory.buildSenderName("gus"));
+		MBeanFactory.createMbean(new JmsProducerStats(""), MBeanFactory.buildPublisherName("gus"));
+		MBeanFactory.createMbean(new JmsProducerStats(""), MBeanFactory.buildSubscriberName("gus"));
 		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		ObjectName objectName = new ObjectName("com.bursatec.bmvmq.consumer:*");
+		ObjectName objectName = new ObjectName(MBeanFactory.QUERY_ALL_BMVMQ_BEANS);
 		Set<ObjectName> mbeanNames = mbs.queryNames(objectName, null);
 		Assert.assertFalse(mbeanNames.isEmpty());
+		Assert.assertEquals(4, mbeanNames.size());
 		
 		MBeanFactory.unregisterMbeans(MBeanFactory.QUERY_ALL_BMVMQ_BEANS);
 		mbeanNames = mbs.queryNames(objectName, null);
