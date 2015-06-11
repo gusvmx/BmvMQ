@@ -25,6 +25,7 @@ import com.bursatec.bmvmq.exception.ConsumerCreationFailureException;
 import com.bursatec.bmvmq.exception.MessageCreatorCreationFailureException;
 import com.bursatec.bmvmq.exception.SendMessageFailureException;
 import com.bursatec.bmvmq.factory.JmsComponentFactory;
+import com.bursatec.bmvmq.jmx.MBeanFactory;
 import com.bursatec.bmvmq.listener.BmvMqConnStateListener;
 import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
@@ -726,6 +727,7 @@ public abstract class MqTemplate {
 	 */
 	public final void stop() {
 		componentFactory.stop();
+		MBeanFactory.unregisterMbeans("com.bursatec.bmvmq:*");
 	}
 	
 	/**
