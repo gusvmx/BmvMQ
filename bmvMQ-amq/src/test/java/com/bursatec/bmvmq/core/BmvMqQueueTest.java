@@ -128,7 +128,7 @@ public class BmvMqQueueTest {
 		Assert.assertEquals(MESSAGE, receivedMap.get(MESSAGE));
 		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		ObjectName objectName = new ObjectName("com.bursatec.bmvmq:type=queue,name=" + destination);
+		ObjectName objectName = new ObjectName(MBeanFactory.buildQueueName(destination));
 		Assert.assertEquals(3L, mbs.getAttribute(objectName, "MessagesReceived"));
 	}
 	
