@@ -96,6 +96,9 @@ public class BmvMqTopicTest {
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		ObjectName objectName = new ObjectName(MBeanFactory.buildSubscriberName(destination));
 		Assert.assertEquals(new Long(numberOfMessagesToReceive), mbs.getAttribute(objectName, "MessagesReceived"));
+		
+		objectName = new ObjectName(MBeanFactory.buildPublisherName(destination));
+		Assert.assertEquals(3L, mbs.getAttribute(objectName, "MessagesDelivered"));
 	}
 	
 }

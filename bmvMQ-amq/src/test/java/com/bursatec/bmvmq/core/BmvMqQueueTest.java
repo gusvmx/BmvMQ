@@ -130,6 +130,9 @@ public class BmvMqQueueTest {
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		ObjectName objectName = new ObjectName(MBeanFactory.buildReceiverName(destination));
 		Assert.assertEquals(3L, mbs.getAttribute(objectName, "MessagesReceived"));
+		
+		objectName = new ObjectName(MBeanFactory.buildSenderName(destination));
+		Assert.assertEquals(3L, mbs.getAttribute(objectName, "MessagesDelivered"));
 	}
 	
 	/**

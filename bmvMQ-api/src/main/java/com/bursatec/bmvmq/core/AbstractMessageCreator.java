@@ -20,6 +20,7 @@ import javax.jms.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.jmx.stats.JmsProducerStats;
 import com.bursatec.bmvmq.message.MessageConstants;
 import com.bursatec.bmvmq.message.MessagePropertySetter;
 import com.bursatec.bmvmq.transaction.TransactionSynchronizationManager;
@@ -39,6 +40,8 @@ public abstract class AbstractMessageCreator {
 	private MessageProducer defaultProducer;
 	/** El nombre del destino, ya sea cola o tópico. */
 	private String destinationName;
+	/** Las estadísticas del publicador. */
+	private JmsProducerStats stats;
 	
 	/**
 	 * Constructor por default.
@@ -121,6 +124,7 @@ public abstract class AbstractMessageCreator {
 		setGroupId(message, messageGroupId);
 		messagePropertySetter.setProperties(message);
 		producer.send(message);
+		stats.messageDelivered();
 		if (session.getTransacted()) {
 			if (!TransactionSynchronizationManager.isSessionBound()) {
 				session.commit();
@@ -201,5 +205,12 @@ public abstract class AbstractMessageCreator {
 	 *             destino.
 	 */
 	protected abstract Destination getDestination(Session session, String destinationName) throws JMSException;
+
+	/**
+	 * @param stats the stats to set
+	 */
+	protected final void setStats(final JmsProducerStats stats) {
+		this.stats = stats;
+	}
 	
 }

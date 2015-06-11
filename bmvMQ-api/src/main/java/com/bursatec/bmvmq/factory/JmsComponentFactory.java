@@ -34,6 +34,7 @@ import com.bursatec.bmvmq.exception.ConnectionCreationFailureException;
 import com.bursatec.bmvmq.exception.SessionCreationFailureException;
 import com.bursatec.bmvmq.jmx.MBeanFactory;
 import com.bursatec.bmvmq.jmx.stats.JmsConsumerStats;
+import com.bursatec.bmvmq.jmx.stats.JmsProducerStats;
 import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
