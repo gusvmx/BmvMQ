@@ -1,0 +1,81 @@
+/**
+ * 
+ */
+package com.bursatec.bmvmq.jmx;
+
+import java.lang.management.ManagementFactory;
+
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import com.bursatec.bmvmq.jmx.stats.JmsProducerStats;
+
+/**
+ * @author gus
+ *
+ */
+public class MBeanFactoryTest {
+
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
+	
+	@After
+	public final void tearDown() {
+		MBeanFactory.unregisterMbeans("com.bursatec.bmvmq:*");
+	}
+	
+	@Test
+	public final void generalInfo() throws MalformedObjectNameException, InstanceNotFoundException {
+		String name = "com.bursatec.bmvmq:type=bmvmq-junit,name=Info";
+		Object mbean = new JmsProducerStats("");
+		Object expectedMbean = MBeanFactory.createMbean(mbean, name);
+		Object registeredMbean = null;
+		
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName objectName = new ObjectName(name);
+		try {
+			registeredMbean = mbs.getObjectInstance(objectName);
+		} catch (InstanceNotFoundException e) {
+			e.printStackTrace();
+			Assert.fail();
+		}
+		Assert.assertEquals(expectedMbean, registeredMbean);
+		MBeanFactory.unregisterMbeans(name);
+		
+		expectedException.expect(InstanceNotFoundException.class);
+		registeredMbean = mbs.getObjectInstance(objectName);
+		Assert.fail("Se debió arrojar una excepción por no encontrar el mbean.");
+	}
+	
+	@Test
+	public final void testInvalidName() {
+		String name = "com.bursate.bmvmq";
+		expectedException.expect(JMXException.class);
+		MBeanFactory.createMbean(new JmsProducerStats(""), name);
+	}
+	
+	@Test
+	public final void testDuplicatedMBeanName() {
+		String name = "com.bursatec.bmvmq:type=duplicated";
+		MBeanFactory.createMbean(new JmsProducerStats(""), name);
+		expectedException.expect(JMXException.class);
+		MBeanFactory.createMbean(new JmsProducerStats(""), name);
+		MBeanFactory.unregisterMbeans(name);
+	}
+	
+	@Test
+	public final void testBuildMbeanName() {
+		String expectedQueueName = "com.bursatec.bmvmq:type=queue,name=gus";
+		String expectedTopicName = "com.bursatec.bmvmq:type=topic,name=gus";
+		Assert.assertEquals(expectedQueueName, MBeanFactory.buildQueueName("gus"));
+		Assert.assertEquals(expectedTopicName, MBeanFactory.buildTopicName("gus"));
+	}
+}
