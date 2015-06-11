@@ -10,14 +10,21 @@ package com.bursatec.bmvmq.core;
 
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -26,9 +33,10 @@ import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.exception.SendMessageFailureException;
+import com.bursatec.bmvmq.jmx.MBeanFactory;
 import com.bursatec.bmvmq.listener.CountdownMessageListener;
-import com.bursatec.bmvmq.listener.MessagePropertyMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
+import com.bursatec.bmvmq.listener.MessagePropertyMessageListener;
 import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
 import com.bursatec.bmvmq.message.MessagePropertySetter;
 
@@ -71,9 +79,16 @@ public class BmvMqQueueTest {
 	 * @throws InterruptedException
 	 *             Si alguien interrumpe a este hilo mientras se espera por la
 	 *             recepcion de mensajes.
+	 * @throws MalformedObjectNameException 
+	 * @throws ReflectionException 
+	 * @throws MBeanException 
+	 * @throws InstanceNotFoundException 
+	 * @throws AttributeNotFoundException 
 	 */
 	@Test
-	public final void messaging() throws InterruptedException {
+	public final void messaging() throws InterruptedException,
+			MalformedObjectNameException, AttributeNotFoundException,
+			InstanceNotFoundException, MBeanException, ReflectionException {
 		final StringBuilder result = new StringBuilder();
 		final byte[] byteArrayReceived = new byte[MESSAGE.getBytes().length];
 		final HashMap<String, String> receivedMap = new HashMap<String, String>();
@@ -111,6 +126,10 @@ public class BmvMqQueueTest {
 		Assert.assertEquals(MESSAGE, result.toString());
 		Assert.assertTrue(Arrays.equals(MESSAGE.getBytes(), byteArrayReceived));
 		Assert.assertEquals(MESSAGE, receivedMap.get(MESSAGE));
+		
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName objectName = new ObjectName("com.bursatec.bmvmq:type=queue,name=" + destination);
+		Assert.assertEquals(3L, mbs.getAttribute(objectName, "MessagesReceived"));
 	}
 	
 	/**
@@ -143,6 +162,15 @@ public class BmvMqQueueTest {
 		MessageListener exclusiveConsumer = new CountdownMessageListener(latch);
 		MsgReceivedCounterMessageListener anotherConsumer = new MsgReceivedCounterMessageListener();
 		template.receiveExclusively(destination, exclusiveConsumer);
+		/*
+		 * Para efectos de la prueba se debe desregistrar el MBean del queue, de
+		 * lo contrario no se podría registrar el siguiente queue al mismo
+		 * destino por id duplicadod e JMX.
+		 * 
+		 * Esto es bajo el supuesto de que sólo en una JVM se va a suscribir a
+		 * un Queue o un tópico. No hay necesidad de hacerlo más de una vez.
+		 */
+		MBeanFactory.unregisterMbeans(MBeanFactory.BMV_MQ_DOMAIN + "*");
 		template.receive(destination, anotherConsumer);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);
@@ -168,6 +196,7 @@ public class BmvMqQueueTest {
 		CountdownMessageListener receiver2 = new CountdownMessageListener(latch);
 		
 		template.receive(destination, receiver1);
+		MBeanFactory.unregisterMbeans(MBeanFactory.BMV_MQ_DOMAIN + "*");
 		template.receive(destination, receiver2);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);

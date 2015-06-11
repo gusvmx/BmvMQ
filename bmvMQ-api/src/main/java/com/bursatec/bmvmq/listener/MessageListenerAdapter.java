@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.config.bind.AcknowledgeModeType;
+import com.bursatec.bmvmq.jmx.stats.JmsConsumerStats;
 import com.bursatec.bmvmq.transaction.TransactionSynchronizationManager;
 
 /**
@@ -39,14 +40,18 @@ public abstract class MessageListenerAdapter implements javax.jms.MessageListene
 	private Session session;
 	/** El tipo de acuse de recibido. */
 	private AcknowledgeModeType acknowledgeModeType;
+	/** Las estadísticas del consumidor. */
+	private JmsConsumerStats stats;
 
 	/**
 	 * Constructor por default.
 	 * @param session La sesión JMS para recepción de mensajes.
+	 * @param stats El recolector de estadísticas.
 	 */
-	protected MessageListenerAdapter(final Session session) {
+	protected MessageListenerAdapter(final Session session, final JmsConsumerStats stats) {
 		this.session = session;
 		this.acknowledgeModeType = BmvMqContext.getConfiguration().getAcknowledgeMode();
+		this.stats = stats;
 	}
 	
 	@Override
@@ -63,6 +68,7 @@ public abstract class MessageListenerAdapter implements javax.jms.MessageListene
 				LOGGER.warn("Se recibió un mensaje no soportado por BmvMQ: " + message.getJMSType());
 			}
 			acknowledgeMessage(message);
+			stats.messageReceived();
 		} catch (JMSException e) {
 			LOGGER.error("Ocurrió un error al recuperar el mensaje recibido.", e);
 			rollback();

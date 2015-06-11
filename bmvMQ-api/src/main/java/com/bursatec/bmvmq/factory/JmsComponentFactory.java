@@ -32,6 +32,8 @@ import com.bursatec.bmvmq.core.QueueMessageCreator;
 import com.bursatec.bmvmq.core.TopicMessageCreator;
 import com.bursatec.bmvmq.exception.ConnectionCreationFailureException;
 import com.bursatec.bmvmq.exception.SessionCreationFailureException;
+import com.bursatec.bmvmq.jmx.MBeanFactory;
+import com.bursatec.bmvmq.jmx.stats.JmsConsumerStats;
 import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
@@ -197,7 +199,9 @@ public abstract class JmsComponentFactory {
 	public final MessageConsumer createQueueConsumer(final String destination,
 			final BmvMqMessageListener messageListener) throws JMSException {
 		Destination queue = consumersSession.createQueue(destination);
-		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
+		JmsConsumerStats stats = new JmsConsumerStats(destination);
+		MBeanFactory.createMbean(stats, MBeanFactory.buildQueueName(destination));
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createConsumer(queue);
 		consumer.setMessageListener(adapter);
 		LOGGER.info("Consumidor creado hacia la cola {}", destination);
@@ -210,15 +214,18 @@ public abstract class JmsComponentFactory {
 	 * 
 	 * @param messageListener
 	 *            El message listener donde se entregaran los mensajes.
+	 * @param stats
+	 *            El recolector de estadísticas de recepción de mensajes.
 	 * @return Un MessageListenerAdapter que entrega únicamente el cuerpo del
 	 *         mensaje u otro que entrega el mensaje JMS dependiendo del tipo de
 	 *         BmvMqMessageListener recibido.
 	 */
-	protected final MessageListenerAdapter createMessageListenerAdapter(final BmvMqMessageListener messageListener) {
+	protected final MessageListenerAdapter createMessageListenerAdapter(final BmvMqMessageListener messageListener,
+			final JmsConsumerStats stats) {
 		if (messageListener instanceof MessageListener) {
-			return new BodyMessageListenerAdapter(consumersSession, (MessageListener) messageListener);
+			return new BodyMessageListenerAdapter(consumersSession, (MessageListener) messageListener, stats);
 		} else {
-			return new RawMessageListenerAdapter(consumersSession, (RawMessageListener) messageListener);
+			return new RawMessageListenerAdapter(consumersSession, (RawMessageListener) messageListener, stats);
 		}
 	}
 	
@@ -252,7 +259,9 @@ public abstract class JmsComponentFactory {
 	public final MessageConsumer createTopicConsumer(final String destination,
 			final BmvMqMessageListener messageListener) throws JMSException {
 		Destination topic = consumersSession.createTopic(destination);
-		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
+		JmsConsumerStats stats = new JmsConsumerStats(destination);
+		MBeanFactory.createMbean(stats, MBeanFactory.buildTopicName(destination));
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createConsumer(topic);
 		consumer.setMessageListener(adapter);
 		return consumer;
@@ -276,7 +285,9 @@ public abstract class JmsComponentFactory {
 			final String destination, final String durableSubscriptionName,
 			final BmvMqMessageListener messageListener) throws JMSException {
 		Topic topic = consumersSession.createTopic(destination);
-		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
+		JmsConsumerStats stats = new JmsConsumerStats(destination);
+		MBeanFactory.createMbean(stats, MBeanFactory.buildTopicName(destination));
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createDurableSubscriber(topic, durableSubscriptionName);
 		consumer.setMessageListener(adapter);
 		return consumer;

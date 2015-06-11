@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.config.bind.BmvMq;
+import com.bursatec.bmvmq.jmx.MBeanFactory;
+import com.bursatec.bmvmq.jmx.stats.JmsConsumerStats;
 import com.bursatec.bmvmq.listener.ActiveMqExceptionListener;
 import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
@@ -87,7 +89,9 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 			final String destination, final BmvMqMessageListener messageListener) throws JMSException {
 		Session consumersSession = getConsumersSession();
 		Destination queue = new ActiveMQQueue(destination + "?consumer.exclusive=true");
-		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener);
+		JmsConsumerStats stats = new JmsConsumerStats(destination);
+		MBeanFactory.createMbean(stats, MBeanFactory.buildQueueName(destination));
+		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createConsumer(queue);
 		consumer.setMessageListener(adapter);
 		return consumer;

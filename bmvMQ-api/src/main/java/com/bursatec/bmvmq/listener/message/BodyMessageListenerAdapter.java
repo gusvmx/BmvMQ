@@ -14,6 +14,7 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import com.bursatec.bmvmq.jmx.stats.JmsConsumerStats;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MessageListenerAdapter;
 
@@ -36,9 +37,12 @@ public class BodyMessageListenerAdapter extends MessageListenerAdapter {
 	 *            La sesión JMS para recepción de mensajes.
 	 * @param messageListener
 	 *            El callback donde se entregarán los mensajes.
+	 * @param stats
+	 *            El recoelctor de estadísticas de consumidor.
 	 */
-	public BodyMessageListenerAdapter(final Session session, final MessageListener messageListener) {
-		super(session);
+	public BodyMessageListenerAdapter(final Session session, final MessageListener messageListener, 
+			final JmsConsumerStats stats) {
+		super(session, stats);
 		this.messageListener = messageListener;
 	}
 

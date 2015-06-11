@@ -18,6 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
+import com.bursatec.bmvmq.jmx.MBeanFactory;
 import com.bursatec.bmvmq.listener.CountdownMessageListener;
 import com.bursatec.bmvmq.listener.MessageListener;
 import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
@@ -101,6 +102,7 @@ public class BmvMqQueueTest {
 		CountdownMessageListener receiver2 = new CountdownMessageListener(latch);
 		
 		template.receive(destination, receiver1);
+		MBeanFactory.unregisterMbeans(MBeanFactory.buildQueueName(destination));
 		template.receive(destination, receiver2);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);
