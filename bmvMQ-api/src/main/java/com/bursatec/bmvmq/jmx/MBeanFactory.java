@@ -27,7 +27,9 @@ public final class MBeanFactory {
 	/***/
 	private static final Logger LOGGER = LoggerFactory.getLogger(MBeanFactory.class);
 	/** El dominio a utilizar para los objetos JMX de este componente. */
-	public static final String BMV_MQ_DOMAIN = "com.bursatec.bmvmq:";
+	private static final String BMV_MQ_DOMAIN = "com.bursatec.bmvmq";
+	/** Criterio de búsqueda para todos los MBeans registrados bajo el dominio com.bursatec.bmvmq. */
+	public static final String QUERY_ALL_BMVMQ_BEANS = BMV_MQ_DOMAIN + "*:*";
 	
 	/** Privado para evitar instancias de está fábrica. */
 	private MBeanFactory() { }
@@ -92,7 +94,7 @@ public final class MBeanFactory {
 	 * @return El nombre para el MBean que mostrará estadísticas del queue indicado.
 	 */
 	public static String buildQueueName(final String destinationName) {
-		return BMV_MQ_DOMAIN + "type=queue,name=" + destinationName;
+		return BMV_MQ_DOMAIN + ".consumer:type=queue,name=" + destinationName;
 	}
 
 	/**
@@ -100,6 +102,6 @@ public final class MBeanFactory {
 	 * @return El nombre para el MBean que mostrará estadísticas del queue indicado.
 	 */
 	public static String buildTopicName(final String destinationName) {
-		return BMV_MQ_DOMAIN + "type=topic,name=" + destinationName;
+		return BMV_MQ_DOMAIN + ".consumer:type=topic,name=" + destinationName;
 	}
 }

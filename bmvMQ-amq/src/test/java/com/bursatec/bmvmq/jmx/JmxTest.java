@@ -43,7 +43,7 @@ public class JmxTest {
 		Assert.assertEquals(0L, mbs.getAttribute(objectName, "MessagesReceived"));
 		template.stop();
 		//Tras terminar no debe existir ningún MBean.
-		Set<ObjectName> mbeans = mbs.queryNames(new ObjectName(MBeanFactory.BMV_MQ_DOMAIN + "*"), null);
+		Set<ObjectName> mbeans = mbs.queryNames(new ObjectName(MBeanFactory.QUERY_ALL_BMVMQ_BEANS), null);
 		Assert.assertTrue(mbeans.isEmpty());
 	}
 }

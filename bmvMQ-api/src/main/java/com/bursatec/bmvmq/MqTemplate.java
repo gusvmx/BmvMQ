@@ -727,7 +727,7 @@ public abstract class MqTemplate {
 	 */
 	public final void stop() {
 		componentFactory.stop();
-		MBeanFactory.unregisterMbeans("com.bursatec.bmvmq:*");
+		MBeanFactory.unregisterMbeans(MBeanFactory.QUERY_ALL_BMVMQ_BEANS);
 	}
 	
 	/**

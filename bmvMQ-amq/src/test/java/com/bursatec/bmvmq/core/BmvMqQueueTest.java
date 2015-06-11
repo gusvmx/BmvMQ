@@ -170,7 +170,7 @@ public class BmvMqQueueTest {
 		 * Esto es bajo el supuesto de que sólo en una JVM se va a suscribir a
 		 * un Queue o un tópico. No hay necesidad de hacerlo más de una vez.
 		 */
-		MBeanFactory.unregisterMbeans(MBeanFactory.BMV_MQ_DOMAIN + "*");
+		MBeanFactory.unregisterMbeans(MBeanFactory.QUERY_ALL_BMVMQ_BEANS);
 		template.receive(destination, anotherConsumer);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);
@@ -196,7 +196,7 @@ public class BmvMqQueueTest {
 		CountdownMessageListener receiver2 = new CountdownMessageListener(latch);
 		
 		template.receive(destination, receiver1);
-		MBeanFactory.unregisterMbeans(MBeanFactory.BMV_MQ_DOMAIN + "*");
+		MBeanFactory.unregisterMbeans(MBeanFactory.QUERY_ALL_BMVMQ_BEANS);
 		template.receive(destination, receiver2);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);

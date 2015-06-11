@@ -4,6 +4,7 @@
 package com.bursatec.bmvmq.jmx;
 
 import java.lang.management.ManagementFactory;
+import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServer;
@@ -29,7 +30,7 @@ public class MBeanFactoryTest {
 	
 	@After
 	public final void tearDown() {
-		MBeanFactory.unregisterMbeans("com.bursatec.bmvmq:*");
+		MBeanFactory.unregisterMbeans(MBeanFactory.QUERY_ALL_BMVMQ_BEANS);
 	}
 	
 	@Test
@@ -73,9 +74,23 @@ public class MBeanFactoryTest {
 	
 	@Test
 	public final void testBuildMbeanName() {
-		String expectedQueueName = "com.bursatec.bmvmq:type=queue,name=gus";
-		String expectedTopicName = "com.bursatec.bmvmq:type=topic,name=gus";
+		String expectedQueueName = "com.bursatec.bmvmq.consumer:type=queue,name=gus";
+		String expectedTopicName = "com.bursatec.bmvmq.consumer:type=topic,name=gus";
 		Assert.assertEquals(expectedQueueName, MBeanFactory.buildQueueName("gus"));
 		Assert.assertEquals(expectedTopicName, MBeanFactory.buildTopicName("gus"));
+	}
+	
+	@Test
+	public final void testUnregisterSubdomains() throws MalformedObjectNameException {
+		MBeanFactory.createMbean(new JmsProducerStats(""), MBeanFactory.buildQueueName("gus"));
+		
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName objectName = new ObjectName("com.bursatec.bmvmq.consumer:*");
+		Set<ObjectName> mbeanNames = mbs.queryNames(objectName, null);
+		Assert.assertFalse(mbeanNames.isEmpty());
+		
+		MBeanFactory.unregisterMbeans(MBeanFactory.QUERY_ALL_BMVMQ_BEANS);
+		mbeanNames = mbs.queryNames(objectName, null);
+		Assert.assertTrue(mbeanNames.isEmpty());
 	}
 }
