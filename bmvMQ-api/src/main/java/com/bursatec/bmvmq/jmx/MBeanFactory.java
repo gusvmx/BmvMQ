@@ -93,15 +93,31 @@ public final class MBeanFactory {
 	 * @param destinationName El nombre del queue.
 	 * @return El nombre para el MBean que mostrará estadísticas del queue indicado.
 	 */
-	public static String buildQueueName(final String destinationName) {
+	public static String buildReceiverName(final String destinationName) {
 		return BMV_MQ_DOMAIN + ".consumer:type=queue,name=" + destinationName;
+	}
+	
+	/**
+	 * @param destinationName El nombre del queue.
+	 * @return El nombre para el MBean que mostrará estadísticas del queue indicado.
+	 */
+	public static String buildSenderName(final String destinationName) {
+		return BMV_MQ_DOMAIN + ".producer:type=queue,name=" + destinationName;
 	}
 
 	/**
 	 * @param destinationName El nombre del tópico.
 	 * @return El nombre para el MBean que mostrará estadísticas del queue indicado.
 	 */
-	public static String buildTopicName(final String destinationName) {
+	public static String buildSubscriberName(final String destinationName) {
 		return BMV_MQ_DOMAIN + ".consumer:type=topic,name=" + destinationName;
+	}
+	
+	/**
+	 * @param destinationName El nombre del tópico.
+	 * @return El nombre para el MBean que mostrará estadísticas del queue indicado.
+	 */
+	public static String buildPublisherName(final String destinationName) {
+		return BMV_MQ_DOMAIN + ".producer:type=topic,name=" + destinationName;
 	}
 }

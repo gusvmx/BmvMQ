@@ -57,7 +57,7 @@ public class BmvMqTopicTest {
 		CountdownMessageListener receiver1 = new CountdownMessageListener(latch);
 		CountdownMessageListener receiver2 = new CountdownMessageListener(latch);
 		template.subscribe(destination, receiver1);
-		MBeanFactory.unregisterMbeans(MBeanFactory.buildTopicName(destination));
+		MBeanFactory.unregisterMbeans(MBeanFactory.buildSubscriberName(destination));
 		template.subscribe(destination, receiver2);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);

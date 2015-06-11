@@ -90,7 +90,7 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 		Session consumersSession = getConsumersSession();
 		Destination queue = new ActiveMQQueue(destination + "?consumer.exclusive=true");
 		JmsConsumerStats stats = new JmsConsumerStats(destination);
-		MBeanFactory.createMbean(stats, MBeanFactory.buildQueueName(destination));
+		MBeanFactory.createMbean(stats, MBeanFactory.buildReceiverName(destination));
 		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createConsumer(queue);
 		consumer.setMessageListener(adapter);

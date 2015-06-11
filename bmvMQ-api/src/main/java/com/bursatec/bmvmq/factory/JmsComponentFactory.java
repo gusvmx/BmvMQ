@@ -200,7 +200,7 @@ public abstract class JmsComponentFactory {
 			final BmvMqMessageListener messageListener) throws JMSException {
 		Destination queue = consumersSession.createQueue(destination);
 		JmsConsumerStats stats = new JmsConsumerStats(destination);
-		MBeanFactory.createMbean(stats, MBeanFactory.buildQueueName(destination));
+		MBeanFactory.createMbean(stats, MBeanFactory.buildReceiverName(destination));
 		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createConsumer(queue);
 		consumer.setMessageListener(adapter);
@@ -260,7 +260,7 @@ public abstract class JmsComponentFactory {
 			final BmvMqMessageListener messageListener) throws JMSException {
 		Destination topic = consumersSession.createTopic(destination);
 		JmsConsumerStats stats = new JmsConsumerStats(destination);
-		MBeanFactory.createMbean(stats, MBeanFactory.buildTopicName(destination));
+		MBeanFactory.createMbean(stats, MBeanFactory.buildSubscriberName(destination));
 		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createConsumer(topic);
 		consumer.setMessageListener(adapter);
@@ -286,7 +286,7 @@ public abstract class JmsComponentFactory {
 			final BmvMqMessageListener messageListener) throws JMSException {
 		Topic topic = consumersSession.createTopic(destination);
 		JmsConsumerStats stats = new JmsConsumerStats(destination);
-		MBeanFactory.createMbean(stats, MBeanFactory.buildTopicName(destination));
+		MBeanFactory.createMbean(stats, MBeanFactory.buildSubscriberName(destination));
 		MessageListenerAdapter adapter = createMessageListenerAdapter(messageListener, stats);
 		MessageConsumer consumer = consumersSession.createDurableSubscriber(topic, durableSubscriptionName);
 		consumer.setMessageListener(adapter);

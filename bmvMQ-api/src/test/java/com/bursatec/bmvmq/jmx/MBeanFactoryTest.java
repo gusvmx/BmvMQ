@@ -74,15 +74,16 @@ public class MBeanFactoryTest {
 	
 	@Test
 	public final void testBuildMbeanName() {
-		String expectedQueueName = "com.bursatec.bmvmq.consumer:type=queue,name=gus";
-		String expectedTopicName = "com.bursatec.bmvmq.consumer:type=topic,name=gus";
-		Assert.assertEquals(expectedQueueName, MBeanFactory.buildQueueName("gus"));
-		Assert.assertEquals(expectedTopicName, MBeanFactory.buildTopicName("gus"));
+		Assert.assertEquals("com.bursatec.bmvmq.consumer:type=queue,name=gus", MBeanFactory.buildReceiverName("gus"));
+		Assert.assertEquals("com.bursatec.bmvmq.producer:type=queue,name=gus", MBeanFactory.buildSenderName("gus"));
+		
+		Assert.assertEquals("com.bursatec.bmvmq.consumer:type=topic,name=gus", MBeanFactory.buildSubscriberName("gus"));
+		Assert.assertEquals("com.bursatec.bmvmq.producer:type=topic,name=gus", MBeanFactory.buildPublisherName("gus"));
 	}
 	
 	@Test
 	public final void testUnregisterSubdomains() throws MalformedObjectNameException {
-		MBeanFactory.createMbean(new JmsProducerStats(""), MBeanFactory.buildQueueName("gus"));
+		MBeanFactory.createMbean(new JmsProducerStats(""), MBeanFactory.buildReceiverName("gus"));
 		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		ObjectName objectName = new ObjectName("com.bursatec.bmvmq.consumer:*");

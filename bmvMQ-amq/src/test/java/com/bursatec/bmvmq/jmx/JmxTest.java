@@ -36,10 +36,10 @@ public class JmxTest {
 		template.subscribe("gus", new MsgReceivedCounterMessageListener());
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 		
-		ObjectName objectName = new ObjectName(MBeanFactory.buildQueueName("gus"));
+		ObjectName objectName = new ObjectName(MBeanFactory.buildReceiverName("gus"));
 		Assert.assertEquals(0L, mbs.getAttribute(objectName, "MessagesReceived"));
 		
-		objectName = new ObjectName(MBeanFactory.buildTopicName("gus"));
+		objectName = new ObjectName(MBeanFactory.buildSubscriberName("gus"));
 		Assert.assertEquals(0L, mbs.getAttribute(objectName, "MessagesReceived"));
 		template.stop();
 		//Tras terminar no debe existir ningún MBean.

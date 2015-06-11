@@ -80,7 +80,7 @@ public class BmvMqTopicTest {
 		CountdownMessageListener receiver1 = new CountdownMessageListener(latch);
 		CountdownMessageListener receiver2 = new CountdownMessageListener(latch);
 		template.subscribe(destination, receiver1);
-		MBeanFactory.unregisterMbeans(MBeanFactory.buildTopicName(destination));
+		MBeanFactory.unregisterMbeans(MBeanFactory.buildSubscriberName(destination));
 		template.subscribe(destination, receiver2);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);
@@ -94,7 +94,7 @@ public class BmvMqTopicTest {
 		Assert.assertEquals(numberOfMessagesToReceive, receiver2.getMessagesReceived());
 		
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-		ObjectName objectName = new ObjectName(MBeanFactory.buildTopicName(destination));
+		ObjectName objectName = new ObjectName(MBeanFactory.buildSubscriberName(destination));
 		Assert.assertEquals(new Long(numberOfMessagesToReceive), mbs.getAttribute(objectName, "MessagesReceived"));
 	}
 	

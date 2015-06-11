@@ -102,7 +102,7 @@ public class BmvMqQueueTest {
 		CountdownMessageListener receiver2 = new CountdownMessageListener(latch);
 		
 		template.receive(destination, receiver1);
-		MBeanFactory.unregisterMbeans(MBeanFactory.buildQueueName(destination));
+		MBeanFactory.unregisterMbeans(MBeanFactory.buildReceiverName(destination));
 		template.receive(destination, receiver2);
 		
 		Thread.sleep(SUBSCRIPTION_TIME);
