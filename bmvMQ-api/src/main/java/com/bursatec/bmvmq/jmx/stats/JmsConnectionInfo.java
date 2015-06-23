@@ -14,11 +14,6 @@ import com.bursatec.bmvmq.jmx.mxbean.JmsConnectionInfoMXBean;
 public class JmsConnectionInfo implements JmsConnectionInfoMXBean {
 
 	@Override
-	public final String getStatus() {
-		return "INTERRUPTED";
-	}
-
-	@Override
 	public final String getUrl() {
 		return BmvMqContext.getConfiguration().getUrl();
 	}

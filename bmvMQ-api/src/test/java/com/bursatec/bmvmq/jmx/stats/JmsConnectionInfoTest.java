@@ -32,7 +32,6 @@ public class JmsConnectionInfoTest {
 	@Test
 	public final void test() {
 		JmsConnectionInfo connInfo = new JmsConnectionInfo();
-		Assert.assertEquals("INTERRUPTED", connInfo.getStatus());
 		Assert.assertEquals("url", connInfo.getUrl());
 		Assert.assertEquals("clientId", connInfo.getClientId());
 		Assert.assertEquals(AcknowledgeModeType.AUTO_ACKNOWLEDGE, connInfo.getAcknowledgeMode());

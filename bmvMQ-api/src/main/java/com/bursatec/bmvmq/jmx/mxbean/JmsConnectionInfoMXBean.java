@@ -12,11 +12,6 @@ import com.bursatec.bmvmq.config.bind.AcknowledgeModeType;
 public interface JmsConnectionInfoMXBean {
 
 	/**
-	 * @return Obtiene el estado actual de la conexión.
-	 */
-	String getStatus();
-
-	/**
 	 * @return Obtiene la URL de conexión.
 	 */
 	String getUrl();
