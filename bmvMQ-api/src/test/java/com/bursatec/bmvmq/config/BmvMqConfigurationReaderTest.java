@@ -43,6 +43,8 @@ public class BmvMqConfigurationReaderTest {
 			Assert.assertEquals(defaultReconnectionInterval, config.getReconnectionInterval().intValue());
 			Assert.assertEquals(defaultconnectionTimeout, config.getConnectionTimeout().intValue());
 			Assert.assertTrue(config.isAsyncSend().booleanValue());
+			Assert.assertTrue(config.isPersistentDeliveryMode().booleanValue());
+			Assert.assertFalse(config.isUseCompression().booleanValue());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			Assert.fail();
@@ -67,6 +69,8 @@ public class BmvMqConfigurationReaderTest {
 		Assert.assertEquals(1, config.getReconnectionInterval().intValue());
 		Assert.assertEquals(1, config.getConnectionTimeout().intValue());
 		Assert.assertFalse(config.isAsyncSend());
+		Assert.assertFalse(config.isPersistentDeliveryMode().booleanValue());
+		Assert.assertTrue(config.isUseCompression().booleanValue());
 	}
 	
 	/**

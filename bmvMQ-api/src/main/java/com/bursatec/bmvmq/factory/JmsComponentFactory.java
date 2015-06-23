@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -163,12 +164,24 @@ public abstract class JmsComponentFactory {
 	public final AbstractMessageCreator createQueueMessageCreator(final String destination) throws JMSException {
 		Destination queue = producersSession.createQueue(destination);
 		MessageProducer sender = producersSession.createProducer(queue);
+		setDeliveryMode(sender);
 		AbstractMessageCreator messageCreator = new QueueMessageCreator(producersSession, sender, destination);
 		LOGGER.info("Publicador creado hacia la cola {}", destination);
 		return messageCreator;
 	}
 	
 	/**
+	 * @param messageProducer El productor de mensajes que se le asignará el modo de entrega.
+	 * @throws JMSException Si ocurre un error interno al asignar el modo de entrega.
+	 */
+	private void setDeliveryMode(final MessageProducer messageProducer) throws JMSException {
+		BmvMq config = BmvMqContext.getConfiguration();
+		int deliveryMode = config.isPersistentDeliveryMode() ? DeliveryMode.PERSISTENT : DeliveryMode.NON_PERSISTENT;
+		messageProducer.setDeliveryMode(deliveryMode);
+	}
+	
+	/**
+	 * @param destination El nombre del tópico donde se enviará el mensaje.
 	 * Obtiene un creador de mensajes para el topico indicado.
 	 * 
 	 * @param destination
@@ -180,6 +193,7 @@ public abstract class JmsComponentFactory {
 	public final AbstractMessageCreator createTopicMessageCreator(final String destination) throws JMSException {
 		Destination topic = producersSession.createTopic(destination);
 		MessageProducer publisher = producersSession.createProducer(topic);
+		setDeliveryMode(publisher);
 		AbstractMessageCreator messageCreator = new TopicMessageCreator(producersSession, publisher, destination);
 		LOGGER.info("Publicador creado hacia el topico {}", destination);
 		return messageCreator;
@@ -297,11 +311,12 @@ public abstract class JmsComponentFactory {
 	/**
 	 * Termina todas las conexiones, sesiones, productores y consumidores.
 	 */
-	public void stop() {
+	public final void stop() {
 		closeSession(consumersSession);
 		closeSession(producersSession);
 		try {
 			connection.stop();
+			connection.close();
 		} catch (JMSException e) {
 			LOGGER.error("Error al terminar la conexión", e);
 		}

@@ -9,4 +9,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<reconnectionInterval>1</reconnectionInterval>
 	<connectionTimeout>1</connectionTimeout>
 	<asyncSend>false</asyncSend>
+	<persistentDeliveryMode>false</persistentDeliveryMode>
+	<useCompression>true</useCompression>
 </bmvMq>
