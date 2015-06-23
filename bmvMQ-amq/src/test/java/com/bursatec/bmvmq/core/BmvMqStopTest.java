@@ -9,9 +9,14 @@
 package com.bursatec.bmvmq.core;
 
 import java.io.FileNotFoundException;
+import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -19,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
+import com.bursatec.bmvmq.jmx.MBeanFactory;
 import com.bursatec.bmvmq.listener.CountdownMessageListener;
 
 /**
@@ -54,9 +60,10 @@ public class BmvMqStopTest {
 	}
 	
 	/**
-	 * @throws InterruptedException */
+	 * @throws InterruptedException 
+	 * @throws MalformedObjectNameException */
 	@Test
-	public final void stopReceiving() throws InterruptedException {
+	public final void stopReceiving() throws InterruptedException, MalformedObjectNameException {
 		final int numberOfMessagesToSend = 3;
 		final int numberOfMessagesTeReceive = 1;
 		final String destination = "receiveAndStop";
@@ -76,12 +83,16 @@ public class BmvMqStopTest {
 
 		Assert.assertFalse(latch.await(TIMEOUT, TIME_UNIT));
 		Assert.assertEquals(numberOfMessagesTeReceive, messageListener.getMessagesReceived());
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName objectName = new ObjectName(MBeanFactory.buildReceiverName(destination));
+		Assert.assertFalse(mbs.isRegistered(objectName));
 	}
 	
 	/**
-	 * @throws InterruptedException */
+	 * @throws InterruptedException 
+	 * @throws MalformedObjectNameException */
 	@Test
-	public final void unsubscribe() throws InterruptedException {
+	public final void unsubscribe() throws InterruptedException, MalformedObjectNameException {
 		final int numberOfMessagesToPublish = 3;
 		final int numberOfMessagesToReceive = 1;
 		final String destination = "unsubscribe";
@@ -101,6 +112,10 @@ public class BmvMqStopTest {
 
 		Assert.assertFalse(latch.await(TIMEOUT, TIME_UNIT));
 		Assert.assertEquals(numberOfMessagesToReceive, messageListener.getMessagesReceived());
+		
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName objectName = new ObjectName(MBeanFactory.buildSubscriberName(destination));
+		Assert.assertFalse(mbs.isRegistered(objectName));
 	}
 	
 	/**

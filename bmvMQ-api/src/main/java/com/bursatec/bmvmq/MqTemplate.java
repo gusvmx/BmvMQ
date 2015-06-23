@@ -692,6 +692,7 @@ public abstract class MqTemplate {
 	public final void stopReceiving(final String destination) {
 		MessageConsumer queueConsumer = queueMessageConsumers.get(destination);
 		stop(queueConsumer, destination);
+		MBeanFactory.unregisterMbeans(MBeanFactory.buildReceiverName(destination));
 	}
 	
 	/**
@@ -720,6 +721,7 @@ public abstract class MqTemplate {
 	public final void unsubscribe(final String destination) {
 		MessageConsumer topicConsumer = topicMessageConsumers.get(destination);
 		stop(topicConsumer, destination);
+		MBeanFactory.unregisterMbeans(MBeanFactory.buildSubscriberName(destination));
 	}
 	
 	/**
