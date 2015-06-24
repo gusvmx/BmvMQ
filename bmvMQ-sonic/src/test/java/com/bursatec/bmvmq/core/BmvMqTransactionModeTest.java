@@ -67,11 +67,10 @@ public class BmvMqTransactionModeTest {
 		this.mqTemplate.stop();
 	}
 	/**
-	 * @throws FileNotFoundException 
 	 * @throws InterruptedException 
 	 */
 	@Test
-	public final void receiveAndSendWithinATransaction() throws FileNotFoundException, InterruptedException {
+	public final void receiveAndSendWithinATransaction() throws InterruptedException {
 		CountDownLatch latch = new CountDownLatch(NUMBER_OF_MESSAGES_TO_RECEIVE);
 		FwMessagesAndExceptionInjectionMessageListener messageListener = 
 				new FwMessagesAndExceptionInjectionMessageListener(mqTemplate, SECOND_DESTINATION, latch);
