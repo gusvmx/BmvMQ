@@ -11,7 +11,9 @@ package com.bursatec.bmvmq.core;
 import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
@@ -30,14 +32,27 @@ public class BmvMqDupsOkAckModeTest {
 	/***/
 	private static final String DESTINATION = "BmvMQDupsOkTest";
 	
-
+	/***/
+	private MqTemplate mqTemplate;
+	/**
+	 * @throws FileNotFoundException Si no encuentra el archivo de configuración.
+	 */
+	@Before
+	public final void start() throws FileNotFoundException {
+		this.mqTemplate = new BmvMqTemplate("classpath:/bmvMqDupsOk.xml");
+	}
+	
+	/***/
+	@After
+	public final void stop() {
+		this.mqTemplate.stop();
+	}
 	/**
 	 * @throws FileNotFoundException 
 	 * @throws InterruptedException 
 	 */
 	@Test
 	public final void dupsOkAckReception() throws FileNotFoundException, InterruptedException {
-		MqTemplate mqTemplate = new BmvMqTemplate("classpath:/bmvMqDupsOk.xml");
 		ExceptionInjectionMessageListener messageListener = 
 				new ExceptionInjectionMessageListener(new CountDownLatch(0));
 		mqTemplate.send(DESTINATION, MESSAGE);

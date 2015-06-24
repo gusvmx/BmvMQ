@@ -12,7 +12,9 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
@@ -49,14 +51,27 @@ public class BmvMqTransactionModeTest {
 	 */
 	private static final int NUMBER_OF_FORWARDED_MESSAGES_RECEIVED = 1;
 	
-
+	/***/
+	private MqTemplate mqTemplate;
+	/**
+	 * @throws FileNotFoundException Si no encuentra el archivo de configuración.
+	 */
+	@Before
+	public final void start() throws FileNotFoundException {
+		this.mqTemplate = new BmvMqTemplate("classpath:/bmvMqLocalTransaction.xml");
+	}
+	
+	/***/
+	@After
+	public final void stop() {
+		this.mqTemplate.stop();
+	}
 	/**
 	 * @throws FileNotFoundException 
 	 * @throws InterruptedException 
 	 */
 	@Test
 	public final void receiveAndSendWithinATransaction() throws FileNotFoundException, InterruptedException {
-		MqTemplate mqTemplate = new BmvMqTemplate("classpath:/bmvMqLocalTransaction.xml");
 		CountDownLatch latch = new CountDownLatch(NUMBER_OF_MESSAGES_TO_RECEIVE);
 		FwMessagesAndExceptionInjectionMessageListener messageListener = 
 				new FwMessagesAndExceptionInjectionMessageListener(mqTemplate, SECOND_DESTINATION, latch);
