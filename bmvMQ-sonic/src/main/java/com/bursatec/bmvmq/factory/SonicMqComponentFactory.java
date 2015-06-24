@@ -19,8 +19,11 @@ import javax.jms.MessageConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.JmsProvider;
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.exception.ConnectionFactoryCreationFailureException;
+import com.bursatec.bmvmq.jmx.MBeanFactory;
+import com.bursatec.bmvmq.jmx.stats.JmsConnectionInfo;
 import com.bursatec.bmvmq.listener.BmvMqMessageListener;
 import com.bursatec.bmvmq.listener.SonicMqExceptionListener;
 
@@ -81,6 +84,8 @@ public class SonicMqComponentFactory extends JmsComponentFactory {
 		LOGGER.info("Fábrica de conexiones ha sido inicializada con los siguientes valores: "
 				+ "URL:{}, Username:{}, MaxConnections:{}, ClientID:{}", 
 				config.getUrl(), config.getUsername(), config.getMaxConnections(), config.getClientId());
+		JmsConnectionInfo mbean = new JmsConnectionInfo();
+		MBeanFactory.createMbean(mbean, MBeanFactory.buildBrokerName(JmsProvider.SONIC_MQ));
 		return connectionFactory;
 	}
 

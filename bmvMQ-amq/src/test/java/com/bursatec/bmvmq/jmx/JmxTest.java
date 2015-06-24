@@ -15,9 +15,12 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.bursatec.bmvmq.JmsProvider;
 import com.bursatec.bmvmq.core.BmvMqTemplate;
 import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
 
@@ -26,12 +29,24 @@ import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
  *
  */
 public class JmxTest {
+	
+	/***/
+	private BmvMqTemplate template;
+	
+	@Before
+	public final void setUp() throws FileNotFoundException {
+		template = new BmvMqTemplate();
+	}
+	
+	@After
+	public final void tearDown() {
+		template.stop();
+	}
 
 	@Test
 	public final void test() throws MalformedObjectNameException,
 			AttributeNotFoundException, InstanceNotFoundException,
 			MBeanException, ReflectionException, FileNotFoundException {
-		BmvMqTemplate template = new BmvMqTemplate();
 		template.receive("gus", new MsgReceivedCounterMessageListener());
 		template.subscribe("gus", new MsgReceivedCounterMessageListener());
 		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
@@ -45,5 +60,12 @@ public class JmxTest {
 		//Tras terminar no debe existir ningún MBean.
 		Set<ObjectName> mbeans = mbs.queryNames(new ObjectName(MBeanFactory.QUERY_ALL_BMVMQ_BEANS), null);
 		Assert.assertTrue(mbeans.isEmpty());
+	}
+	
+	@Test
+	public final void testConnInfoMBean() throws MalformedObjectNameException, FileNotFoundException {
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName objectName = new ObjectName(MBeanFactory.buildBrokerName(JmsProvider.ACTIVE_MQ));
+		Assert.assertTrue(mbs.isRegistered(objectName));
 	}
 }

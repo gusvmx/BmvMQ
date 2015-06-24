@@ -25,9 +25,11 @@ import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.JmsProvider;
 import com.bursatec.bmvmq.config.BmvMqContext;
 import com.bursatec.bmvmq.config.bind.BmvMq;
 import com.bursatec.bmvmq.jmx.MBeanFactory;
+import com.bursatec.bmvmq.jmx.stats.JmsConnectionInfo;
 import com.bursatec.bmvmq.jmx.stats.JmsConsumerStats;
 import com.bursatec.bmvmq.listener.ActiveMqExceptionListener;
 import com.bursatec.bmvmq.listener.BmvMqMessageListener;
@@ -81,6 +83,8 @@ public class ActiveMqComponentFactory extends JmsComponentFactory {
 		LOGGER.info("Connection factory has been initialised with the following values. "
 				+ "URL:{}, Username:{}, MaxConnections:{}", 
 				config.getUrl(), config.getUsername(), config.getMaxConnections());
+		JmsConnectionInfo mbean = new JmsConnectionInfo();
+		MBeanFactory.createMbean(mbean, MBeanFactory.buildBrokerName(JmsProvider.ACTIVE_MQ));
 		return connectionFactory;
 	}
 	

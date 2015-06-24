@@ -17,6 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.bursatec.bmvmq.JmsProvider;
 import com.bursatec.bmvmq.jmx.stats.JmsProducerStats;
 
 /**
@@ -79,6 +80,9 @@ public class MBeanFactoryTest {
 		
 		Assert.assertEquals("com.bursatec.bmvmq.consumer:type=topic,name=gus", MBeanFactory.buildSubscriberName("gus"));
 		Assert.assertEquals("com.bursatec.bmvmq.producer:type=topic,name=gus", MBeanFactory.buildPublisherName("gus"));
+		
+		Assert.assertEquals("com.bursatec.bmvmq:type=" + JmsProvider.ACTIVE_MQ, 
+				MBeanFactory.buildBrokerName(JmsProvider.ACTIVE_MQ));
 	}
 	
 	@Test

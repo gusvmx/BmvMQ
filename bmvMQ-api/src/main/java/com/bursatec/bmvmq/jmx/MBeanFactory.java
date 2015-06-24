@@ -18,6 +18,8 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.JmsProvider;
+
 /**
  * @author gus
  *
@@ -119,5 +121,13 @@ public final class MBeanFactory {
 	 */
 	public static String buildPublisherName(final String destinationName) {
 		return BMV_MQ_DOMAIN + ".producer:type=topic,name=" + destinationName;
+	}
+
+	/**
+	 * @param provider El proveedor de JMS utilizado
+	 * @return El nombre del Mbean para las información del broker.
+	 */
+	public static String buildBrokerName(final JmsProvider provider) {
+		return BMV_MQ_DOMAIN + ":type=" + provider;
 	}
 }
