@@ -13,6 +13,9 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import com.bursatec.bmvmq.jmx.MBeanFactory;
+import com.bursatec.bmvmq.jmx.stats.JmsProducerStats;
+
 /**
  * @author gus - Bursatec
  * @version 1.0
@@ -30,6 +33,9 @@ public class TopicMessageCreator extends AbstractMessageCreator {
 	public TopicMessageCreator(final Session session,
 			final MessageProducer defaultProducer, final String destinationName) {
 		super(session, defaultProducer, destinationName);
+		JmsProducerStats stats = new JmsProducerStats(destinationName);
+		MBeanFactory.createMbean(stats, MBeanFactory.buildPublisherName(destinationName));
+		setStats(stats);
 	}
 
 	@Override

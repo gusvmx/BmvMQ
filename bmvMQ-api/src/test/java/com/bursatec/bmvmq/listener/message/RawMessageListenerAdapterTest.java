@@ -20,6 +20,7 @@ import com.bursatec.bmvmq.core.MockBytesMessage;
 import com.bursatec.bmvmq.core.MockObjectMessage;
 import com.bursatec.bmvmq.core.MockSession;
 import com.bursatec.bmvmq.core.MockTextMessage;
+import com.bursatec.bmvmq.jmx.stats.JmsConsumerStats;
 
 /**
  * @author gus - Bursatec
@@ -35,7 +36,8 @@ public class RawMessageListenerAdapterTest {
 		BmvMqContext.setConfiguration(new BmvMq());
 		BmvMqContext.getConfiguration().setAcknowledgeMode(AcknowledgeModeType.AUTO_ACKNOWLEDGE);
 		CallsCounterRawMessageListener messageListener = new CallsCounterRawMessageListener();
-		RawMessageListenerAdapter adapter = new RawMessageListenerAdapter(new MockSession(), messageListener);
+		RawMessageListenerAdapter adapter = new RawMessageListenerAdapter(new MockSession(), messageListener,
+				new JmsConsumerStats(""));
 		adapter.deliver(new MockBytesMessage());
 		adapter.deliver(new MockObjectMessage(""));
 		adapter.deliver(new MockTextMessage(""));

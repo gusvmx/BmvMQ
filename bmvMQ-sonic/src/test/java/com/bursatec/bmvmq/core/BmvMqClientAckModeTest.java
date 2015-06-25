@@ -12,7 +12,9 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
@@ -48,14 +50,25 @@ public class BmvMqClientAckModeTest {
 	/***/
 	private CountDownLatch latch;
 	
-
+	/**
+	 * @throws FileNotFoundException Si no encuentra el archivo de configuración.
+	 */
+	@Before
+	public final void start() throws FileNotFoundException {
+		this.mqTemplate = new BmvMqTemplate();
+	}
+	
+	/***/
+	@After
+	public final void stop() {
+		this.mqTemplate.stop();
+	}
 	/**
 	 * @throws FileNotFoundException 
 	 * @throws InterruptedException 
 	 */
 	@Test
 	public final void clientAckReception() throws FileNotFoundException, InterruptedException {
-		this.mqTemplate = new BmvMqTemplate("classpath:/bmvMqClientAck.xml");
 		this.latch = new CountDownLatch(NUMBER_OF_MESSAGES_TO_RECEIVE);
 		this.messageListener = new ExceptionInjectionMessageListener(latch);
 		mqTemplate.send(DESTINATION, MESSAGE);

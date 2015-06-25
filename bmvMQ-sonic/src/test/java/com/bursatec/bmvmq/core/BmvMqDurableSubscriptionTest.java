@@ -13,8 +13,9 @@ import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.bursatec.bmvmq.MqTemplate;
@@ -35,7 +36,7 @@ public class BmvMqDurableSubscriptionTest {
 	/***/
 	private static final String MESSAGE = BmvMqDurableSubscriptionTest.class.getName() + "Message";
 	/***/
-	private static MqTemplate template;
+	private MqTemplate template;
 	/***/
 	private static final String SUBSCRIPTION_NAME = "bmvMqSubscriptionName" + Math.random();
 	/***/
@@ -44,9 +45,15 @@ public class BmvMqDurableSubscriptionTest {
 	/**
 	 * @throws FileNotFoundException En caso de no encontrar el archivo de configuracion por default.
 	 */
-	@BeforeClass
-	public static final void initBroker() throws FileNotFoundException {
+	@Before
+	public final void initBroker() throws FileNotFoundException {
 		template = new BmvMqTemplate();
+	}
+	
+	/***/
+	@After
+	public final void stop() {
+		this.template.stop();
 	}
 	
 	/**
