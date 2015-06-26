@@ -290,7 +290,5 @@
 	</build>
 	<modules>
 		<module>bmvMQ-api</module>
-		<module>bmvMQ-amq</module>
-		<module>bmvMQ-sonic</module>
 	</modules>
 </project>
