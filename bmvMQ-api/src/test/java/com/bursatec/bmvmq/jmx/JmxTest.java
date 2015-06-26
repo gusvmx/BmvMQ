@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.bursatec.bmvmq.BmvMqTemplate;
+import com.bursatec.bmvmq.BmvMqFactory;
 import com.bursatec.bmvmq.JmsProvider;
 import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
@@ -36,7 +36,7 @@ public class JmxTest {
 	
 	@Before
 	public final void setUp() throws FileNotFoundException {
-		template = BmvMqTemplate.activeMQ();
+		template = BmvMqFactory.activeMQ();
 	}
 	
 	@After

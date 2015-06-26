@@ -10,7 +10,7 @@ package com.bursatec.bmvmq.throughput;
 
 import java.io.FileNotFoundException;
 
-import com.bursatec.bmvmq.BmvMqTemplate;
+import com.bursatec.bmvmq.BmvMqFactory;
 import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.listener.MessageReceivedCounter;
 import com.bursatec.bmvmq.util.ThroughputObserver;
@@ -29,7 +29,7 @@ public final class SimpleMessageReceiver {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(final String[] args) throws FileNotFoundException {
-		MqTemplate mqTemplate = BmvMqTemplate.activeMQ("classpath:/bmvMqThroughput.xml");
+		MqTemplate mqTemplate = BmvMqFactory.activeMQ("classpath:/bmvMqThroughput.xml");
 		MessageReceivedCounter messageListener = new MessageReceivedCounter();
 		Thread throughputObserver = new Thread(new ThroughputObserver(messageListener), "ThroughputObserver");
 		mqTemplate.receive("throughputTest", messageListener);

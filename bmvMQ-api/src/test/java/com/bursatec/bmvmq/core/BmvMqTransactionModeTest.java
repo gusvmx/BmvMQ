@@ -17,7 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.bursatec.bmvmq.BmvMqTemplate;
+import com.bursatec.bmvmq.BmvMqFactory;
 import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.listener.FwMessagesAndExceptionInjectionMessageListener;
 import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
@@ -58,7 +58,7 @@ public class BmvMqTransactionModeTest {
 	 */
 	@Before
 	public final void start() throws FileNotFoundException {
-		this.mqTemplate = BmvMqTemplate.activeMQ("classpath:/bmvMqLocalTransaction.xml");
+		this.mqTemplate = BmvMqFactory.activeMQ("classpath:/bmvMqLocalTransaction.xml");
 	}
 	
 	/***/

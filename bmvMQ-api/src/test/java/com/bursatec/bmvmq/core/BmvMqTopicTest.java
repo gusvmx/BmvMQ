@@ -27,7 +27,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.bursatec.bmvmq.BmvMqTemplate;
+import com.bursatec.bmvmq.BmvMqFactory;
 import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.jmx.MBeanFactory;
 import com.bursatec.bmvmq.listener.CountdownMessageListener;
@@ -54,7 +54,7 @@ public class BmvMqTopicTest {
 	 */
 	@Before
 	public final void start() throws FileNotFoundException {
-		this.template = BmvMqTemplate.activeMQ("classpath:/bmvMqDupsOk.xml");
+		this.template = BmvMqFactory.activeMQ("classpath:/bmvMqDupsOk.xml");
 	}
 	
 	/***/

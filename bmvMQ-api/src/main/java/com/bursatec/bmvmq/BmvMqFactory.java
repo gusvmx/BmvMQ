@@ -18,10 +18,10 @@ import com.bursatec.bmvmq.factory.SonicMqComponentFactory;
  * 
  * @author gus
  */
-public final class BmvMqTemplate {
+public final class BmvMqFactory {
 
 	/** Constructor por default privado para evitar instancias de está fábrica. */
-	private BmvMqTemplate() {
+	private BmvMqFactory() {
 	}
 
 	/**
