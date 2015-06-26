@@ -11,15 +11,18 @@ package com.bursatec.bmvmq;
 import java.io.FileNotFoundException;
 
 import com.bursatec.bmvmq.factory.ActiveMqComponentFactory;
+import com.bursatec.bmvmq.factory.SonicMqComponentFactory;
 
 /**
  * Fábrica de plantillas MQ.
+ * 
  * @author gus
  */
 public final class BmvMqTemplate {
-	
+
 	/** Constructor por default privado para evitar instancias de está fábrica. */
-	private BmvMqTemplate() { }
+	private BmvMqTemplate() {
+	}
 
 	/**
 	 * @return Una instancia de MqTemplate configurada con ActiveMQ.
@@ -30,7 +33,7 @@ public final class BmvMqTemplate {
 	public static MqTemplate activeMQ() throws FileNotFoundException {
 		return activeMQ(MqTemplate.DEFAULT_CONFIG_FILE_LOCATION);
 	}
-	
+
 	/**
 	 * @param configFileLocation
 	 *            La ubicación del archivo de configuración.
@@ -46,8 +49,39 @@ public final class BmvMqTemplate {
 	 *             En caso de no encontrar el archivo de configuración en la
 	 *             ubicación indicada.
 	 */
-	public static MqTemplate activeMQ(final String configFileLocation) throws FileNotFoundException {
+	public static MqTemplate activeMQ(final String configFileLocation)
+			throws FileNotFoundException {
 		return new MqTemplate(new ActiveMqComponentFactory(configFileLocation));
+	}
+
+	/**
+	 * @return Una instancia de MqTemplate configurada con SonicMQ.
+	 * @throws FileNotFoundException
+	 *             En caso de no encontrar en el classpath el archivo de
+	 *             configuración bmvMq.xml
+	 */
+	public static MqTemplate sonicMQ() throws FileNotFoundException {
+		return sonicMQ(MqTemplate.DEFAULT_CONFIG_FILE_LOCATION);
+	}
+
+	/**
+	 * @param configFileLocation
+	 *            La ubicación del archivo de configuración.
+	 * 
+	 *            La ubicación del archivo puede llevar los siguientes prefijos:
+	 *            classpath:, file:, jar:, zip:
+	 * 
+	 *            En caso de no contar con un prefijo, el archivo se buscará en
+	 *            el FS.
+	 * @return Una instancia de MqTemplate configurada con SonicMQ con el
+	 *         archivo de configuración proporcionado.
+	 * @throws FileNotFoundException
+	 *             En caso de no encontrar el archivo de configuración en la
+	 *             ubicación indicada.
+	 */
+	public static MqTemplate sonicMQ(final String configFileLocation)
+			throws FileNotFoundException {
+		return new MqTemplate(new SonicMqComponentFactory(configFileLocation));
 	}
 
 }
