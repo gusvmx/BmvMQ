@@ -40,7 +40,7 @@ import com.bursatec.bmvmq.message.MessagePropertySetter;
  * @author Gustavo Vargas
  *
  */
-public abstract class MqTemplate {
+public class MqTemplate {
 
 	/***/
 	private static final Logger LOGGER = LoggerFactory.getLogger(MqTemplate.class);

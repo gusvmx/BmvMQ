@@ -13,8 +13,8 @@ import java.io.FileNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bursatec.bmvmq.BmvMqTemplate;
 import com.bursatec.bmvmq.MqTemplate;
-import com.bursatec.bmvmq.core.BmvMqTemplate;
 
 /**
  * @author gus
@@ -31,7 +31,7 @@ public final class SimpleMessageSender {
 	 * @throws FileNotFoundException 
 	 */
 	public static void main(final String[] args) throws FileNotFoundException {
-		MqTemplate mqTemplate = new BmvMqTemplate("classpath:/bmvMqThroughputSender.xml");
+		MqTemplate mqTemplate = BmvMqTemplate.activeMQ("classpath:/bmvMqThroughputSender.xml");
 		final int numberOfMessagesToSend = 1000000;
 		final int printMessagesSentEvery = 1000;
 		int messagesSent = 0;

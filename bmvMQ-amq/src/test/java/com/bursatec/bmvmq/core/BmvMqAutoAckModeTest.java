@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.bursatec.bmvmq.BmvMqTemplate;
 import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.listener.ExceptionInjectionMessageListener;
 
@@ -55,7 +56,7 @@ public class BmvMqAutoAckModeTest {
 	 */
 	@Before
 	public final void start() throws FileNotFoundException {
-		this.mqTemplate = new BmvMqTemplate();
+		this.mqTemplate = BmvMqTemplate.activeMQ();
 	}
 	
 	/***/

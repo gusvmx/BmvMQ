@@ -20,8 +20,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.bursatec.bmvmq.BmvMqTemplate;
 import com.bursatec.bmvmq.JmsProvider;
-import com.bursatec.bmvmq.core.BmvMqTemplate;
+import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
 
 /**
@@ -31,11 +32,11 @@ import com.bursatec.bmvmq.listener.MsgReceivedCounterMessageListener;
 public class JmxTest {
 	
 	/***/
-	private BmvMqTemplate template;
+	private MqTemplate template;
 	
 	@Before
 	public final void setUp() throws FileNotFoundException {
-		template = new BmvMqTemplate();
+		template = BmvMqTemplate.activeMQ();
 	}
 	
 	@After

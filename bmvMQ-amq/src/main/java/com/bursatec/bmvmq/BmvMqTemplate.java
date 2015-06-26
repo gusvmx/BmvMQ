@@ -6,28 +6,29 @@
  * You shall not disclose such confidential information and shall use
  * it only within a project and/or the offices of Bursatec or Bolsa Mexicana de Valores
  */
-package com.bursatec.bmvmq.core;
+package com.bursatec.bmvmq;
 
 import java.io.FileNotFoundException;
 
-import com.bursatec.bmvmq.MqTemplate;
 import com.bursatec.bmvmq.factory.ActiveMqComponentFactory;
 
 /**
+ * Fábrica de plantillas MQ.
  * @author gus
- *
  */
-public class BmvMqTemplate extends MqTemplate {
+public final class BmvMqTemplate {
+	
+	/** Constructor por default privado para evitar instancias de está fábrica. */
+	private BmvMqTemplate() { }
 
 	/**
-	 * Constructor por default.
-	 * 
+	 * @return Una instancia de MqTemplate configurada con ActiveMQ.
 	 * @throws FileNotFoundException
 	 *             En caso de no encontrar en el classpath el archivo de
 	 *             configuración bmvMq.xml
 	 */
-	public BmvMqTemplate() throws FileNotFoundException {
-		this(MqTemplate.DEFAULT_CONFIG_FILE_LOCATION);
+	public static MqTemplate activeMQ() throws FileNotFoundException {
+		return activeMQ(MqTemplate.DEFAULT_CONFIG_FILE_LOCATION);
 	}
 	
 	/**
@@ -36,14 +37,17 @@ public class BmvMqTemplate extends MqTemplate {
 	 * 
 	 *            La ubicación del archivo puede llevar los siguientes prefijos:
 	 *            classpath:, file:, jar:, zip:
-	 *            
-	 *            En caso de no contar con un prefijo, el archivo se buscará en el FS.
+	 * 
+	 *            En caso de no contar con un prefijo, el archivo se buscará en
+	 *            el FS.
+	 * @return Una instancia de MqTemplate configurada con ActiveMQ con el
+	 *         archivo de configuración proporcionado.
 	 * @throws FileNotFoundException
 	 *             En caso de no encontrar el archivo de configuración en la
 	 *             ubicación indicada.
 	 */
-	public BmvMqTemplate(final String configFileLocation) throws FileNotFoundException {
-		super(new ActiveMqComponentFactory(configFileLocation));
+	public static MqTemplate activeMQ(final String configFileLocation) throws FileNotFoundException {
+		return new MqTemplate(new ActiveMqComponentFactory(configFileLocation));
 	}
 
 }
